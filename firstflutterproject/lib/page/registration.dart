@@ -1,6 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_picker_web/image_picker_web.dart';
 import 'package:radio_group_v2/radio_group_v2.dart' as v2;
 import 'package:date_field/date_field.dart';
+import 'package:flutter/foundation.dart';
 
 class Registration extends StatefulWidget {
   const Registration({super.key});
@@ -16,10 +20,16 @@ class _RegistrationState extends State<Registration> {
   final TextEditingController confirmPassword = TextEditingController();
   final TextEditingController cell = TextEditingController();
   final TextEditingController address = TextEditingController();
+  final DateTimeFieldPickerPlatform dob = DateTimeFieldPickerPlatform.material;
 
   final v2.RadioGroupController genderController = v2.RadioGroupController();
 
   DateTime? selectedDOB;
+  XFile? selectedImage;
+
+  Uint8List? webImage;
+
+  final ImagePicker _picker = ImagePicker();
 
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -35,7 +45,7 @@ class _RegistrationState extends State<Registration> {
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Title
                 const Text(
@@ -116,9 +126,15 @@ class _RegistrationState extends State<Registration> {
                 const SizedBox(height: 16),
 
                 // Gender
-                const Text(
-                  "Gender",
-                  style: TextStyle(fontWeight: FontWeight.w500),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Gender",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 v2.RadioGroup(
@@ -136,14 +152,13 @@ class _RegistrationState extends State<Registration> {
                 const SizedBox(height: 20),
 
                 // Date of Birth
-                DateTimeField(
+                DateTimeFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Date of Birth',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.calendar_today),
+                    labelText: 'Date Of Birth'
                   ),
                   mode: DateTimeFieldPickerMode.date,
-                  onChanged: (DateTime? value) {
+                  pickerPlatform: dob,
+                  onChanged: (DateTime? value){
                     setState(() {
                       selectedDOB = value;
                     });
@@ -151,6 +166,41 @@ class _RegistrationState extends State<Registration> {
                 ),
                 const SizedBox(height: 24),
 
+                //Image
+
+                TextButton.icon(
+                  icon: Icon(Icons.image),
+                  label: Text('Upload Image'),
+                  onPressed: pickImage
+                ),
+
+                // Display selected Image preview
+
+              if(kIsWeb && webImage != null)
+
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.memory(
+                  webImage!,
+                  height: 150,
+                  width: 150,
+                  fit: BoxFit.cover,
+                ),
+
+
+              ) else if(!kIsWeb && selectedImage !=null )
+                Padding(
+
+                    padding: const EdgeInsets.all(8.0),
+                  child: Image.file(
+                    File(selectedImage!.path),
+                    height: 150,
+                    width: 150,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
@@ -230,4 +280,28 @@ class _RegistrationState extends State<Registration> {
       ),
     );
   }
+
+
+  Future<void> pickImage() async{
+
+    if(kIsWeb){
+      var pickedImage = await ImagePickerWeb.getImageAsBytes();
+      if(pickedImage!= null){
+        setState(() {
+          webImage = pickedImage;
+        });
+      }
+      else{
+
+        final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+
+        if(pickedImage != null){
+          setState(() {
+            selectedImage = pickedImage;
+          });
+        }
+      }
+    }
+  }
+
 }
