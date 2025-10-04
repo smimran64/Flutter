@@ -1,5 +1,8 @@
 
+import 'package:firstflutterproject/admin/adminpage.dart';
+import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
 class Loginpage extends StatefulWidget {
@@ -13,6 +16,11 @@ class _LoginpageState extends State<Loginpage> {
 
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
+
+
+  final storage = new FlutterSecureStorage();
+
+  AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +60,7 @@ class _LoginpageState extends State<Loginpage> {
             ),
             ElevatedButton(
                 onPressed: (){
-                  String en = email.text;
-                  String pass = password.text;
-                  print('Email: $en, Password: $pass');
+                  loginUser(context);
                 },
                 child: Text(
                   'Login',
@@ -78,5 +84,35 @@ class _LoginpageState extends State<Loginpage> {
         ),
       ),
     );
+  }
+
+
+  Future<void> loginUser(BuildContext context) async{
+
+    try{
+
+      final response = await authService.login(email.text, password.text);
+
+      // Successful login , role based navigation
+
+      final role = await authService.getUserRole();
+
+      if(role == 'ADMIN'){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminPage()),
+           );
+      }
+
+      else{
+
+        print('Unknown User login');
+      }
+
+    }
+    catch(error){
+      print('User login Failed');
+    }
+
   }
 }

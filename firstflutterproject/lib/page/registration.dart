@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_picker_web/image_picker_web.dart';
@@ -206,19 +207,23 @@ class _RegistrationState extends State<Registration> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // TODO: Handle form submit
-                      }
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Loginpage()),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
+
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
+
                       ),
                     ),
                     child: const Text(
                       "Register",
                       style: TextStyle(fontSize: 18),
+
                     ),
                   ),
                 ),
