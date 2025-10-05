@@ -2,8 +2,15 @@
 
 
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:jwt_decode/jwt_decode.dart';
+import 'package:mime/mime.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
@@ -61,4 +68,63 @@ class AuthService {
 
 
   }
+
+
+
+  Future<bool> customerRegistration({
+    required Map<String, dynamic> user,
+    required Map<String, dynamic> customer,
+
+    File? photoFile,
+    Uint8List? photoBytes,
+})async{
+
+    // create multipart http request
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/api/customer/reg'),
+    );
+
+    // convert User map into JSon string and add to request fields
+
+    request.fields['user'] = jsonEncode(user);
+
+    // convert Customer into JSON string and add to request fields
+
+    request.fields['customer'] = jsonEncode(customer);
+
+
+    // -++++++++++++++++ Image Handling-++++++++++++++++++
+
+    if(photoBytes != null){
+      request.files.add(await http.MultipartFile.fromBytes(
+          'image',
+          photoBytes,
+          filename: 'profile.png'));
+    }
+
+    // If photoFile is provided (mobile/ desktop), attach it
+
+    else if(photoFile !=null){
+
+      request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          photoFile.path,
+      ));
+    }
+
+
+    // send request
+
+
+    var response = await request.send();
+
+    // Return True if response code is 200(Success)
+
+    return response.statusCode == 200;
+
+  }
+
+
 }

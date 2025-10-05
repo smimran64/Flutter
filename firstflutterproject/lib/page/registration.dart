@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firstflutterproject/page/loginpage.dart';
+import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_picker_web/image_picker_web.dart';
@@ -28,6 +29,8 @@ class _RegistrationState extends State<Registration> {
   DateTime? selectedDOB;
   XFile? selectedImage;
 
+  String? selectedGender;
+
   Uint8List? webImage;
 
   final ImagePicker _picker = ImagePicker();
@@ -51,10 +54,7 @@ class _RegistrationState extends State<Registration> {
                 // Title
                 const Text(
                   'Registration Form',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -102,8 +102,7 @@ class _RegistrationState extends State<Registration> {
                   isVisible: _isConfirmPasswordVisible,
                   onToggle: () {
                     setState(() {
-                      _isConfirmPasswordVisible =
-                      !_isConfirmPasswordVisible;
+                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                     });
                   },
                 ),
@@ -127,7 +126,6 @@ class _RegistrationState extends State<Registration> {
                 const SizedBox(height: 16),
 
                 // Gender
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -143,23 +141,21 @@ class _RegistrationState extends State<Registration> {
                   values: const ["Male", "Female", "Other"],
                   indexOfDefault: 0,
                   orientation: v2.RadioGroupOrientation.horizontal,
-                  decoration: const v2.RadioGroupDecoration(
-                    spacing: 20,
-                  ),
+                  decoration: const v2.RadioGroupDecoration(spacing: 20),
                   onChanged: (val) {
-                    setState(() {});
+                    setState(() {
+                      selectedGender = val.toString();
+                    });
                   },
                 ),
                 const SizedBox(height: 20),
 
                 // Date of Birth
                 DateTimeFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Date Of Birth'
-                  ),
+                  decoration: const InputDecoration(labelText: 'Date Of Birth'),
                   mode: DateTimeFieldPickerMode.date,
                   pickerPlatform: dob,
-                  onChanged: (DateTime? value){
+                  onChanged: (DateTime? value) {
                     setState(() {
                       selectedDOB = value;
                     });
@@ -168,62 +164,50 @@ class _RegistrationState extends State<Registration> {
                 const SizedBox(height: 24),
 
                 //Image
-
                 TextButton.icon(
                   icon: Icon(Icons.image),
                   label: Text('Upload Image'),
-                  onPressed: pickImage
+                  onPressed: pickImage,
                 ),
 
                 // Display selected Image preview
-
-              if(kIsWeb && webImage != null)
-
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.memory(
-                  webImage!,
-                  height: 150,
-                  width: 150,
-                  fit: BoxFit.cover,
-                ),
-
-
-              ) else if(!kIsWeb && selectedImage !=null )
-                Padding(
-
+                if (kIsWeb && webImage != null)
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
-                  child: Image.file(
-                    File(selectedImage!.path),
-                    height: 150,
-                    width: 150,
-                    fit: BoxFit.cover,
+                    child: Image.memory(
+                      webImage!,
+                      height: 150,
+                      width: 150,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                else if (!kIsWeb && selectedImage != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.file(
+                      File(selectedImage!.path),
+                      height: 150,
+                      width: 150,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
 
                 const SizedBox(height: 16),
+
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => Loginpage()),
-                      );
-                    },
+                    onPressed: _register, // ✅ এটিই আপনার ফাংশন কল
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-
                       ),
                     ),
                     child: const Text(
                       "Register",
                       style: TextStyle(fontSize: 18),
-
                     ),
                   ),
                 ),
@@ -235,7 +219,6 @@ class _RegistrationState extends State<Registration> {
     );
   }
 
-  /// Normal TextField
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -276,9 +259,7 @@ class _RegistrationState extends State<Registration> {
           border: const OutlineInputBorder(),
           prefixIcon: Icon(icon),
           suffixIcon: IconButton(
-            icon: Icon(
-              isVisible ? Icons.visibility : Icons.visibility_off,
-            ),
+            icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
             onPressed: onToggle,
           ),
         ),
@@ -286,21 +267,19 @@ class _RegistrationState extends State<Registration> {
     );
   }
 
-
-  Future<void> pickImage() async{
-
-    if(kIsWeb){
+  Future<void> pickImage() async {
+    if (kIsWeb) {
       var pickedImage = await ImagePickerWeb.getImageAsBytes();
-      if(pickedImage!= null){
+      if (pickedImage != null) {
         setState(() {
           webImage = pickedImage;
         });
-      }
-      else{
+      } else {
+        final XFile? pickedImage = await _picker.pickImage(
+          source: ImageSource.gallery,
+        );
 
-        final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
-
-        if(pickedImage != null){
+        if (pickedImage != null) {
           setState(() {
             selectedImage = pickedImage;
           });
@@ -309,4 +288,83 @@ class _RegistrationState extends State<Registration> {
     }
   }
 
+  // Method to handle Customer Registration
+
+  void _register() async {
+    if (_formKey.currentState!.validate()) {
+      if (password.text != confirmPassword.text) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Passwords do not match')));
+        return;
+      }
+
+      // Validate that the user has selected an image
+      if (kIsWeb && webImage == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Please select an image')));
+        return;
+      }
+
+      if (!kIsWeb && selectedImage == null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Please select an image')));
+        return;
+      }
+
+      // Prepare user & customer data
+      final user = {
+        "name": name.text,
+        "email": email.text,
+        "phone": cell.text,
+        "password": password.text,
+      };
+
+      final customer = {
+        "name": name.text,
+        "email": email.text,
+        "phone": cell.text,
+        "gender": selectedGender ?? "Male",
+        "address": address.text,
+        "dateOfBirth": selectedDOB?.toIso8601String() ?? "",
+      };
+
+      final apiService = AuthService();
+
+      bool success = false;
+
+      // Call registration API based on platform
+      if (kIsWeb && webImage != null) {
+        success = await apiService.customerRegistration(
+          user: user,
+          customer: customer,
+          photoBytes: webImage!,
+        );
+      } else if (selectedImage != null) {
+        success = await apiService.customerRegistration(
+          user: user,
+          customer: customer,
+          photoFile: File(selectedImage!.path),
+        );
+      }
+
+      // Handle success or failure
+      if (success) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Registration Successful')));
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Loginpage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration failed. Please try again.')),
+        );
+      }
+    }
+  }
 }

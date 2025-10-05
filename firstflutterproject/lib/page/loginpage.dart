@@ -1,5 +1,6 @@
 
 import 'package:firstflutterproject/admin/adminpage.dart';
+import 'package:firstflutterproject/customer/customer_profile.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -102,6 +103,13 @@ class _LoginpageState extends State<Loginpage> {
             context,
             MaterialPageRoute(builder: (context) => AdminPage()),
            );
+      }
+
+      else if(role == 'CUSTOMER'){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CustomerProfile())
+        );
       }
 
       else{
