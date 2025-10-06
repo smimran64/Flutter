@@ -4,8 +4,10 @@ import 'package:firstflutterproject/admin/adminpage.dart';
 import 'package:firstflutterproject/customer/customer_profile.dart';
 import 'package:firstflutterproject/page/registration.dart';
 import 'package:firstflutterproject/service/authservice.dart';
+import 'package:firstflutterproject/service/customer_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 class Loginpage extends StatefulWidget {
@@ -24,6 +26,7 @@ class _LoginpageState extends State<Loginpage> {
   final storage = new FlutterSecureStorage();
 
   AuthService authService = AuthService();
+  CustomerService customerService = CustomerService();
 
   @override
   Widget build(BuildContext context) {
@@ -89,22 +92,48 @@ class _LoginpageState extends State<Loginpage> {
             ),
             ElevatedButton(
                 onPressed: (){
-                  AdminRegistrationPage();
+                 Navigator.push(
+                     context,
+                     MaterialPageRoute(builder: (context)=> Registration()),
+                 );
                 },
                 child: Text(
-                    'Registration',
+                    'Registration as a Customer',
                   style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.black
+                    fontWeight: FontWeight.w600,
+                    fontFamily: GoogleFonts.lato().fontFamily
                   ),
                 ),
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepOrange,
+                backgroundColor: Colors.blueAccent,
                 foregroundColor: Colors.white
               ),
-            )
+            ),
+            SizedBox(
+              height: 20.0 ,
 
+            ),
+            ElevatedButton(
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=> AdminRegistrationPage()),
+                );
+              },
+              child: Text(
+                'Registration as an Admin',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: GoogleFonts.lato().fontFamily
+                ),
+              ),
+
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white
+              ),
+            ),
           ],
 
         ),
@@ -131,10 +160,15 @@ class _LoginpageState extends State<Loginpage> {
       }
 
       else if(role == 'CUSTOMER'){
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => CustomerProfile())
-        );
+        final profile = await customerService.getCustomerProfile();
+
+        if(profile !=null){
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => CustomerProfile(profile: profile))
+          );
+        }
+
       }
 
       else{
