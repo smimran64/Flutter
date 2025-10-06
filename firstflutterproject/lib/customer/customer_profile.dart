@@ -22,7 +22,7 @@ class CustomerProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final String baseUrl = "http://localhost:8082/images/customer/";
+    final String baseUrl = "http://localhost:8082/images/customer";
 
     final String? photoName = profile['image'];
 
@@ -30,21 +30,22 @@ class CustomerProfile extends StatelessWidget {
     final String? photoUrl = (photoName != null && photoName.isNotEmpty) ? "$baseUrl$photoName": null;
 
 
+    // Scaffold main Screen+++++++++++
+
+
     return Scaffold(
-      body: AppBar(
+     appBar: AppBar(
         title: const Text('Customer Profile',
-          style: TextStyle(
-            color: Colors.white
-          ),
+
+            style: TextStyle(
+              color: Colors.white
+            ),
+
         ),
-        backgroundColor: Colors.black12,
+         backgroundColor: Colors.cyan,
         centerTitle: true,
-        elevation: 4,
-
-
-
-
-      ),
+       elevation: 4,
+     ),
 
       // Drawer: Side navigation menu
 
@@ -70,6 +71,9 @@ class CustomerProfile extends StatelessWidget {
                 NetworkImage(photoUrl): const AssetImage('null') as ImageProvider,
               ),
             ),
+
+            // menu item++++++++++++++
+
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('My Profile'),
@@ -91,6 +95,16 @@ class CustomerProfile extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: (){
+                Navigator.pop(context);
+              },
+            ),
+
+
             const Divider(),
 
             ListTile(
@@ -109,6 +123,78 @@ class CustomerProfile extends StatelessWidget {
           ],
         ),
       ),
+
+      // Body: main content area
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  )
+                ],
+                border: Border.all(
+                  color: Colors.purple,
+                  width: 3,
+                )
+              ),
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: Colors.grey[200],
+                backgroundImage: (photoUrl != null)
+                ?NetworkImage(photoUrl)// from backend
+                :const AssetImage("null") as ImageProvider,
+              ),
+            ),
+            const SizedBox(height: 20,),
+
+            // Display Customer Name
+
+            Text(
+              profile['name']?? 'Unknown',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+
+            // Display user email (nested under user object)
+
+            Text(
+              "Email : ${profile['user']? ['email']?? 'N/A'}",
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+
+            ),
+
+            const SizedBox(height: 30),
+
+
+            // Button for editing profile
+
+            ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Add edit functionality or navigation
+              },
+              icon: const Icon(Icons.edit),
+              label: const Text("Edit Profile"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+                padding:
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+              ),
+            ),
+
+          ],
+        ),
+      ),
+
     );
   }
 }

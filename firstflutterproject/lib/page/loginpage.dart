@@ -162,10 +162,10 @@ class _LoginpageState extends State<Loginpage> {
       else if(role == 'CUSTOMER'){
         final profile = await customerService.getCustomerProfile();
 
-        if(profile !=null){
+        if(profile != null){
           Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => CustomerProfile(profile: profile))
+              MaterialPageRoute(builder: (context) => CustomerProfile(profile: profile)),
           );
         }
 
