@@ -1,6 +1,8 @@
 
+import 'package:firstflutterproject/admin/admin_registration_page.dart';
 import 'package:firstflutterproject/admin/adminpage.dart';
 import 'package:firstflutterproject/customer/customer_profile.dart';
+import 'package:firstflutterproject/page/registration.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -79,7 +81,30 @@ class _LoginpageState extends State<Loginpage> {
                 foregroundColor: Colors.white
               )
 
+            ),
+
+            SizedBox(
+              height: 20.0 ,
+
+            ),
+            ElevatedButton(
+                onPressed: (){
+                  AdminRegistrationPage();
+                },
+                child: Text(
+                    'Registration',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.black
+                  ),
+                ),
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepOrange,
+                foregroundColor: Colors.white
+              ),
             )
+
           ],
 
         ),
