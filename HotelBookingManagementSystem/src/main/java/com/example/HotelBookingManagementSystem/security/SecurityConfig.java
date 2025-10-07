@@ -56,7 +56,6 @@ public class SecurityConfig {
                                 "/api/user/all",
                                 "/api/all",
                                 "/api/users/**",
-
                                 "/api/hotel/search",
                                 "/api/hotel/{id}/rooms",
                                 "/api/hotel/**",
