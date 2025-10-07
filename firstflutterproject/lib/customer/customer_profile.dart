@@ -1,8 +1,3 @@
-
-
-
-
-
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
@@ -167,12 +162,33 @@ class CustomerProfile extends StatelessWidget {
             // Display user email (nested under user object)
 
             Text(
-              "Email : ${profile['user']? ['email']?? 'N/A'}",
+              "Email : ${profile['email']?? 'N/A'}",
               style: TextStyle(fontSize: 16, color: Colors.grey[700]),
 
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
+
+            Text(
+              "Address: ${profile['address']?? 'N/A'}",
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              "Gender: ${profile['gender']?? 'N/A'}" ,
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 10),
+
+            Text(
+              "Date Of Birth: ${profile['dateOfBirth']?? 'N/A'}",
+              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            ),
+
+
+
 
 
             // Button for editing profile

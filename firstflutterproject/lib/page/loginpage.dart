@@ -1,8 +1,9 @@
 
 import 'package:firstflutterproject/admin/admin_registration_page.dart';
-import 'package:firstflutterproject/admin/adminpage.dart';
+import 'package:firstflutterproject/admin/admin_profile_page.dart';
 import 'package:firstflutterproject/customer/customer_profile.dart';
 import 'package:firstflutterproject/page/registration.dart';
+import 'package:firstflutterproject/service/admin_service.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:firstflutterproject/service/customer_service.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ class _LoginpageState extends State<Loginpage> {
 
   AuthService authService = AuthService();
   CustomerService customerService = CustomerService();
+  AdminService adminService = AdminService();
 
   @override
   Widget build(BuildContext context) {
@@ -153,10 +155,14 @@ class _LoginpageState extends State<Loginpage> {
       final role = await authService.getUserRole();
 
       if(role == 'ADMIN'){
-        Navigator.pushReplacement(
+        final profile = await adminService.getAdminProfile();
+
+        if(profile != null){
+          Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AdminPage()),
-           );
+            MaterialPageRoute(builder: (context) => AdminProfilePage(profile: profile)),
+          );
+        }
       }
 
       else if(role == 'CUSTOMER'){
