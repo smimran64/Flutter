@@ -28,6 +28,9 @@ class CustomerService{
       }
     );
 
+    print('Response: ${response.statusCode}');
+    print('Body: ${response.body}');
+
     if(response.statusCode == 200){
       return jsonDecode(response.body);
     }

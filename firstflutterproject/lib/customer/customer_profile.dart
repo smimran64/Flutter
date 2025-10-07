@@ -27,7 +27,7 @@ class CustomerProfile extends StatelessWidget {
     final String? photoName = profile['image'];
 
 
-    final String? photoUrl = (photoName != null && photoName.isNotEmpty) ? "$baseUrl$photoName": null;
+    final String? photoUrl = (photoName != null && photoName.isNotEmpty) ? "$baseUrl/$photoName": null;
 
 
     // Scaffold main Screen+++++++++++
@@ -68,7 +68,7 @@ class CustomerProfile extends StatelessWidget {
               accountEmail: Text(profile['user']?['email']?? 'N/A'),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: (photoUrl != null)?
-                NetworkImage(photoUrl): const AssetImage('null') as ImageProvider,
+                NetworkImage(photoUrl): const AssetImage('assets/default_user.png') as ImageProvider,
               ),
             ),
 
@@ -151,7 +151,7 @@ class CustomerProfile extends StatelessWidget {
                 backgroundColor: Colors.grey[200],
                 backgroundImage: (photoUrl != null)
                 ?NetworkImage(photoUrl)// from backend
-                :const AssetImage("null") as ImageProvider,
+                :const AssetImage("assets/default_user.png") as ImageProvider,
               ),
             ),
             const SizedBox(height: 20,),
