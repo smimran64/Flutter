@@ -53,7 +53,7 @@ class _RegistrationState extends State<Registration> {
               children: [
                 // Title
                 const Text(
-                  'Registration Form',
+                  'Customer Registration Form',
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -198,7 +198,7 @@ class _RegistrationState extends State<Registration> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _register, // ✅ এটিই আপনার ফাংশন কল
+                    onPressed: _register,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -242,6 +242,7 @@ class _RegistrationState extends State<Registration> {
   }
 
   /// Password Field with eye icon
+  ///
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String label,

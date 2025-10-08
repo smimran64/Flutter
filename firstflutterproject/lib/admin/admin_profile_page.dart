@@ -1,7 +1,9 @@
 
 
+import 'package:firstflutterproject/location/view_location_page.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
+import 'package:firstflutterproject/service/location_service.dart';
 import 'package:flutter/material.dart';
 
 
@@ -15,6 +17,8 @@ class AdminProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    LocationService locationService = LocationService();
 
     final String baseUrl = "http://localhost:8082/images/Admins";
 
@@ -58,7 +62,7 @@ class AdminProfilePage extends StatelessWidget {
                 profile['name'] ?? 'Unknown User',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              accountEmail: Text(profile['user']?['email']?? 'N/A'),
+              accountEmail: Text(profile['email']?? 'N/A'),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: (photoUrl != null)?
                 NetworkImage(photoUrl): const AssetImage('assets/default_user.png') as ImageProvider,
@@ -84,8 +88,18 @@ class AdminProfilePage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.work),
               title: const Text('Location History'),
-              onTap: (){
-                Navigator.pop(context);
+              onTap: () async {
+                // TODO: Add navigation to Edit Profile Page
+                final location = await locationService.getAllLocations();
+
+                if (location != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LocationPage(),
+                    ),
+                  );
+                }
               },
             ),
 
@@ -152,10 +166,15 @@ class AdminProfilePage extends StatelessWidget {
 
               // Display Customer Name
 
-              Text(
-                profile['name']?? 'Unknown',
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              Center(
+                child: Text(
+                  profile['name']?? 'Unknown',
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+
               ),
+
+
               const SizedBox(height: 10),
 
               // Display user email (nested under user object)

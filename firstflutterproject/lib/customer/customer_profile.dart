@@ -153,9 +153,13 @@ class CustomerProfile extends StatelessWidget {
 
             // Display Customer Name
 
-            Text(
-              profile['name']?? 'Unknown',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Center(
+
+              child: Text(
+                profile['name']?? 'Unknown',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+
             ),
             const SizedBox(height: 10),
 
@@ -192,6 +196,8 @@ class CustomerProfile extends StatelessWidget {
 
 
             // Button for editing profile
+
+            const SizedBox(height: 20),
 
             ElevatedButton.icon(
               onPressed: () {

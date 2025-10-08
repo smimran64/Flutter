@@ -1,3 +1,6 @@
+import 'package:firstflutterproject/hotel_admin/hotel_admin_profile.dart';
+import 'package:firstflutterproject/hotel_admin/hotel_admin_registration.dart';
+import 'package:firstflutterproject/service/hotel_admin_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firstflutterproject/admin/admin_registration_page.dart';
@@ -27,6 +30,7 @@ class _LoginpageState extends State<Loginpage> {
   AuthService authService = AuthService();
   CustomerService customerService = CustomerService();
   AdminService adminService = AdminService();
+  HotelAdminService hotelAdminService = HotelAdminService();
 
   var _isVisible = false;
 
@@ -209,11 +213,11 @@ class _LoginpageState extends State<Loginpage> {
                           onPressed: (){
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context)=> AdminRegistrationPage()),
+                              MaterialPageRoute(builder: (context)=> HotelAdminRegistration()),
                             );
                           },
                           child: Text(
-                            'Registration as an Admin',
+                            'Registration as a Hotel Admin',
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontFamily: GoogleFonts.lato().fontFamily
@@ -260,6 +264,16 @@ class _LoginpageState extends State<Loginpage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => CustomerProfile(profile: profile)),
+          );
+        }
+      }
+
+      else if(role == 'HOTEL_ADMIN'){
+        final profile = await hotelAdminService.getHotelAdminProfile();
+        if(profile != null){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HotelAdminProfile(profile: profile)),
           );
         }
       }
