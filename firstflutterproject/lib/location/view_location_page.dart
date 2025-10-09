@@ -34,54 +34,70 @@ class _LocationPageState extends State<LocationPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Locations'),
+        title: const Text('Locations'),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-        itemCount: locations.length,
-        itemBuilder: (context, index) {
-          final location = locations[index];
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+        padding: const EdgeInsets.all(12),
+        child: GridView.builder(
+          itemCount: locations.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // 3 per row
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.75, // Adjust height/width ratio
+          ),
+          itemBuilder: (context, index) {
+            final location = locations[index];
+            final imageUrl = '$baseUrl/${Uri.encodeComponent(location.image)}';
 
-          return Card(
-            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Image from network or placeholder
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-
-
-                  child: Image.network(
-                    '$baseUrl/${Uri.encodeComponent(location.image)} ', // change as per your backend setup
-                    height: 200,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: 200,
-                      color: Colors.grey,
-                      child: Icon(Icons.broken_image, size: 50),
+            return Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Image.network(
+                      imageUrl,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey.shade300,
+                          child: const Icon(Icons.broken_image, size: 40),
+                        );
+                      },
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text(
-                    location.name,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    color: Colors.deepPurple.shade50,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 8,
+                    ),
+                    child: Text(
+                      location.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

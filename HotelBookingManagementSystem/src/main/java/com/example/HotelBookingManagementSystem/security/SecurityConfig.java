@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/images/**",
+                                "/images/gallery/**",
                                 "/api/customer/**",
                                 "/api/customer/",
                                 "/api/hotelAdmin/**",

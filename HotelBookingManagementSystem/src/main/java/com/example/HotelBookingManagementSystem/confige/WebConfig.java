@@ -41,12 +41,5 @@ public class WebConfig implements WebMvcConfigurer {
 
 
 
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeRequests()
-//                .antMatchers("/images/**").permitAll()
-//                .anyRequest().authenticated();
-//    }
 
 }

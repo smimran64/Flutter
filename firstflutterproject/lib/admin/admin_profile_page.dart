@@ -1,8 +1,17 @@
 
 
+
+import 'package:firstflutterproject/hotel/view_all_hotel.dart';
+import 'package:firstflutterproject/hotel_amenities/view_all_amenities.dart';
+import 'package:firstflutterproject/hotel_information/view_hotel_information.dart';
+import 'package:firstflutterproject/hotel_photo_gallery/view_photo_by_id.dart';
 import 'package:firstflutterproject/location/view_location_page.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
+import 'package:firstflutterproject/service/hotel_aminities_service.dart';
+import 'package:firstflutterproject/service/hotel_information_service.dart';
+import 'package:firstflutterproject/service/hotel_photo_service.dart';
+import 'package:firstflutterproject/service/hotel_service.dart';
 import 'package:firstflutterproject/service/location_service.dart';
 import 'package:flutter/material.dart';
 
@@ -12,13 +21,29 @@ class AdminProfilePage extends StatelessWidget {
   final Map<String, dynamic> profile;
 
   final AuthService _authService = AuthService();
+  final HotelService _hotelService = HotelService();
 
   AdminProfilePage({Key? key, required this.profile}): super(key: key);
+
+
 
   @override
   Widget build(BuildContext context) {
 
+
+
+
+
     LocationService locationService = LocationService();
+
+    HotelService hotelService = HotelService();
+
+    HotelAminitiesService hotelAminitiesService = HotelAminitiesService();
+
+    HotelInformationService hotelInformationService = HotelInformationService();
+
+    HotelPhotoService hotelPhotoService = HotelPhotoService();
+
 
     final String baseUrl = "http://localhost:8082/images/Admins";
 
@@ -100,6 +125,76 @@ class AdminProfilePage extends StatelessWidget {
                     ),
                   );
                 }
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.hotel),
+              title: const Text('All Hotels'),
+              onTap: () async {
+                // TODO: Add navigation to Edit Profile Page
+                final hotel = await hotelService.getAllHotels();
+
+                if (hotel != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewAllHotel(),
+                    ),
+                  );
+                }
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.hotel),
+              title: const Text('All Hotels Amenities'),
+              onTap: () async {
+                // TODO: Add navigation to Edit Profile Page
+                final amenities = await hotelAminitiesService.getAllAmenities();
+
+                if (amenities != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewAllAmenities(),
+                    ),
+                  );
+                }
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.hotel_class_sharp),
+              title: const Text('All Hotels Information'),
+              onTap: () async {
+                // TODO: Add navigation to Edit Profile Page
+                final information = await hotelInformationService.getAllHotelInformation();
+
+                if (information != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewAllHotelInfoPage()
+                    ),
+                  );
+                }
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.hotel_class_sharp),
+              title: const Text('Photo Gallery'),
+              onTap: () async {
+                // TODO: Add navigation to Edit Profile Page
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => HotelPhotoGalleryPage()
+                    ),
+                  );
+
               },
             ),
 
