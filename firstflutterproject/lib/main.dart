@@ -1,4 +1,5 @@
 import 'package:firstflutterproject/admin/admin_registration_page.dart';
+import 'package:firstflutterproject/home/home_page.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/page/registration.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
 
       debugShowCheckedModeBanner: false,
-      home:Loginpage()
+      home:HomePage()
     );
   }
 }
