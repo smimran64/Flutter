@@ -40,7 +40,17 @@ class _ViewAllAmenitiesState extends State<ViewAllAmenities> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("All Hotel Amenities")),
+      appBar: AppBar(
+
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // ✅ Back to AdminProfilePage
+            },
+          ),
+
+          title: const Text("All Hotel Amenities")
+      ),
       body: FutureBuilder<List<Amenities>>(
         future: _futureAmenities,
         builder: (context, snapshot) {

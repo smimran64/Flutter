@@ -28,7 +28,15 @@ class _ViewAllHotelInfoPageState extends State<ViewAllHotelInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Hotel Details")),
+      appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context); // ✅ Back to AdminProfilePage
+            },
+          ),
+          title: const Text("Hotel Details")
+      ),
       body: FutureBuilder<List<HotelInformation>>(
         future: _hotelInfoList,
         builder: (context, snapshot) {

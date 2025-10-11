@@ -99,9 +99,8 @@ class AdminProfilePage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('My Profile'),
-              onTap: (){
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
+
             ),
             ListTile(
               leading: const Icon(Icons.edit),
@@ -118,7 +117,7 @@ class AdminProfilePage extends StatelessWidget {
                 final location = await locationService.getAllLocations();
 
                 if (location != null) {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => LocationPage(),
@@ -136,7 +135,7 @@ class AdminProfilePage extends StatelessWidget {
                 final hotel = await hotelService.getAllHotels();
 
                 if (hotel != null) {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ViewAllHotel(),
@@ -154,7 +153,7 @@ class AdminProfilePage extends StatelessWidget {
                 final amenities = await hotelAminitiesService.getAllAmenities();
 
                 if (amenities != null) {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ViewAllAmenities(),
@@ -172,7 +171,7 @@ class AdminProfilePage extends StatelessWidget {
                 final information = await hotelInformationService.getAllHotelInformation();
 
                 if (information != null) {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ViewAllHotelInfoPage()
@@ -188,7 +187,7 @@ class AdminProfilePage extends StatelessWidget {
               onTap: () async {
                 // TODO: Add navigation to Edit Profile Page
 
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => HotelPhotoGalleryPage()

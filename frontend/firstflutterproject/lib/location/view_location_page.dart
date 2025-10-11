@@ -34,6 +34,13 @@ class _LocationPageState extends State<LocationPage> {
 
     return Scaffold(
       appBar: AppBar(
+
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // ✅ Back to AdminProfilePage
+          },
+        ),
         title: const Text('Locations'),
         centerTitle: true,
         backgroundColor: Colors.deepPurple,

@@ -27,6 +27,12 @@ class _ViewAllHotelState extends State<ViewAllHotel> {
     final String baseUrl = "http://localhost:8082/images/hotels";
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // ✅ Back to AdminProfilePage
+          },
+        ),
         title: const Text("All Hotels"),
       ),
 

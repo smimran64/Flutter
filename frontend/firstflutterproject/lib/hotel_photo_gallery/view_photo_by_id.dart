@@ -23,6 +23,13 @@ class _HotelPhotoGalleryPageState extends State<HotelPhotoGalleryPage> {
     return Scaffold(
       // Gradient AppBar
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: Colors.amberAccent,
+          onPressed: () {
+            Navigator.pop(context); // ✅ Back to AdminProfilePage
+          },
+        ),
         elevation: 0,
         centerTitle: true,
         title: const Text(

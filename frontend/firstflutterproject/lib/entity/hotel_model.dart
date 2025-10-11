@@ -24,9 +24,12 @@ class Hotel {
       address: json['address'],
       rating: json['rating'],
       image: json['image'],
-      location: Location.fromJson(json['location']),
+      location: json['location'] != null
+          ? Location.fromJson(json['location'])
+          : Location(id: 0, name: 'Unknown', image: 'no_image.png'),
     );
   }
+
 }
 
 class Location {
