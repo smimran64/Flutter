@@ -11,19 +11,19 @@ class HotelService{
   final String baseUrl = 'http://localhost:8082';
 
   Future<List<Hotel>> getAllHotels() async {
-    String? token = await AuthService().getToken();
-
-    if (token == null) {
-      print('No token found, please login first');
-      return [];
-    }
+    // String? token = await AuthService().getToken();
+    //
+    // if (token == null) {
+    //   print('No token found, please login first');
+    //   return [];
+    // }
 
     final url = Uri.parse('$baseUrl/api/hotel/all');
 
     final response = await http.get(
       url,
       headers: {
-        'Authorization': 'Bearer $token',
+        // 'Authorization': 'Bearer $token',
         'Content-type': 'application/json',
       },
     );
@@ -53,12 +53,12 @@ class HotelService{
     required String checkIn,
     required String checkOut,
   }) async {
-    String? token = await AuthService().getToken();
-
-    if (token == null) {
-      print('No token found, please login first');
-      return [];
-    }
+    // String? token = await AuthService().getToken();
+    //
+    // if (token == null) {
+    //   print('No token found, please login first');
+    //   return [];
+    // }
 
     final url = Uri.parse(
         '$baseUrl/api/hotel/search?locationId=$locationId&checkIn=$checkIn&checkOut=$checkOut');
@@ -66,7 +66,7 @@ class HotelService{
     final response = await http.get(
       url,
       headers: {
-        'Authorization': 'Bearer $token',
+        // 'Authorization': 'Bearer $token',
         'Content-type': 'application/json',
       },
     );

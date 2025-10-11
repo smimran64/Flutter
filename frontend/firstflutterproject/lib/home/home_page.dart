@@ -1,4 +1,5 @@
 import 'package:firstflutterproject/entity/hotel_model.dart' hide Location;
+import 'package:firstflutterproject/hotel/hotel_details.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:firstflutterproject/service/hotel_service.dart';
@@ -690,7 +691,11 @@ class _HomePageState extends State<HomePage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              // View details page
+
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HotelDetailsPage(hotelId: hotel.id))
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,
