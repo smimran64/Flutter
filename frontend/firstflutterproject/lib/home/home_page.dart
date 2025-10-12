@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:firstflutterproject/entity/location_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 void main() {
@@ -110,11 +111,17 @@ class _HomePageState extends State<HomePage> {
 
   void _searchHotels() async {
     if (selectedLocation == null || checkInDate == null || checkOutDate == null) {
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select location and dates")),
       );
       return;
     }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('selectedLocation', selectedLocation!.name);
+    prefs.setString('checkIn', checkInDate!.toIso8601String());
+    prefs.setString('checkOut', checkOutDate!.toIso8601String());
 
     setState(() => isLoading = true);
 
@@ -360,7 +367,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(width: 40),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => Loginpage()),
                         );
@@ -448,6 +455,7 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget _buildSearchBar(BuildContext context) {
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: BackdropFilter(
@@ -690,9 +698,13 @@ class _HomePageState extends State<HomePage> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async{
 
-                              Navigator.pushReplacement(
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              prefs.setString('selectedHotel', hotel.name);
+                              prefs.setInt('selectedHotelId', hotel.id);
+
+                              Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (context) => HotelDetailsPage(hotelId: hotel.id))
                               );

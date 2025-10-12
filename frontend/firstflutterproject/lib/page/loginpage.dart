@@ -1,3 +1,4 @@
+import 'package:firstflutterproject/entity/customer_model.dart';
 import 'package:firstflutterproject/hotel_admin/hotel_admin_profile.dart';
 import 'package:firstflutterproject/hotel_admin/hotel_admin_registration.dart';
 import 'package:firstflutterproject/service/hotel_admin_service.dart';
@@ -12,9 +13,14 @@ import 'package:firstflutterproject/service/authservice.dart';
 import 'package:firstflutterproject/service/customer_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginpage extends StatefulWidget {
-  const Loginpage({super.key});
+
+
+  final VoidCallback? redirectAfterLogin;
+
+  const Loginpage({Key? key, this.redirectAfterLogin}) : super(key: key);
 
   @override
   State<Loginpage> createState() => _LoginpageState();
@@ -36,6 +42,9 @@ class _LoginpageState extends State<Loginpage> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     final deviceHeight = MediaQuery.of(context).size.height;
     final deviceWidth = MediaQuery.of(context).size.width;
 
@@ -252,26 +261,42 @@ class _LoginpageState extends State<Loginpage> {
       if(role == 'ADMIN'){
         final profile = await adminService.getAdminProfile();
         if(profile != null){
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => AdminProfilePage(profile: profile)),
           );
         }
       }
       else if(role == 'CUSTOMER'){
-        final profile = await customerService.getCustomerProfile();
+        final profileJson = await customerService.getCustomerProfile();
+        final profile = CustomerModel.fromJson(profileJson!); // <-- fix here
+
         if(profile != null){
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => CustomerProfile(profile: profile)),
-          );
+          // SharedPreferences e customer info save kora
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('customerName', profile.name ?? '');
+          prefs.setString('customerEmail', profile.email ?? '');
+          prefs.setString('customerPhone', profile.phone ?? '');
+          prefs.setString('customerAddress', profile.address ?? '');
+
+          // Check if a redirect callback is provided (for Booking Page)
+          if(widget.redirectAfterLogin != null){
+            widget.redirectAfterLogin!(); // Navigate to Booking Page
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CustomerProfile(profile: profile)),
+            );
+          }
         }
       }
+
+
 
       else if(role == 'HOTEL_ADMIN'){
         final profile = await hotelAdminService.getHotelAdminProfile();
         if(profile != null){
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => HotelAdminProfile(profile: profile)),
           );

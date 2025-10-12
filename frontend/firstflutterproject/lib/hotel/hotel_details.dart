@@ -1,9 +1,13 @@
 
 
+import 'package:firstflutterproject/bookings/bookings_page.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart';
 import 'package:firstflutterproject/entity/room_model.dart';
+import 'package:firstflutterproject/page/loginpage.dart';
+import 'package:firstflutterproject/service/authservice.dart';
 import 'package:firstflutterproject/service/hotel_details_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class HotelDetailsPage extends StatefulWidget {
@@ -21,6 +25,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
   late Future<Hotel> futureHotel;
   late Future<List<Room>> futureRooms;
   final HotelDetailsService hotelDetailsService = HotelDetailsService();
+  final AuthService authService = AuthService();
 
 
   @override
@@ -284,13 +289,37 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                                               SizedBox(
                                                 width: double.infinity,
                                                 child: ElevatedButton(
-                                                  onPressed: () {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(
-                                                        content: Text("Booking ${room.roomType}..."),
-                                                        backgroundColor: Colors.deepPurple,
-                                                      ),
-                                                    );
+                                                  onPressed: () async {
+                                                    // Save selected room & hotel info to SharedPreferences
+                                                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                                                    await prefs.setString('selectedHotel', hotel.name);
+                                                    await prefs.setString('selectedHotelAddress', hotel.address);
+                                                    await prefs.setString('selectedRoomType', room.roomType);
+                                                    await prefs.setString('selectedPrice', room.price.toString());
+                                                    await prefs.setString('selectedAdults', room.adults.toString());
+                                                    await prefs.setString('selectedChildren', room.children.toString());
+
+                                                    if (await authService.isLoggedIn() && await authService.isCustomer()) {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(builder: (_) => BookingsPage()),
+                                                      );
+                                                    } else {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => Loginpage(
+                                                            redirectAfterLogin: () async {
+                                                              // After login, push BookingsPage
+                                                              Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(builder: (_) => BookingsPage()),
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
                                                   },
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: Colors.deepPurple,
@@ -309,6 +338,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                                                   ),
                                                 ),
                                               ),
+
                                             ],
                                           ),
                                         ),

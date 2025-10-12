@@ -59,12 +59,6 @@ class AuthService {
 
   }
 
-
-
-
-
-
-
   Future<bool> customerRegistration({
     required Map<String, dynamic> user,
     required Map<String, dynamic> customer,
