@@ -184,4 +184,50 @@ class AuthService {
     return await hasRole(['CUSTOMER']);
   }
 
+
+  Future<Map<String, dynamic>?> getCurrentCustomer() async {
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('authToken');
+
+    if (token == null) return null;
+
+    print('Token sent to /me: $token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/customer/me'),
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+        HttpHeaders.contentTypeHeader: 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final customer = jsonDecode(response.body);
+      print('Customer received from /me: $customer');
+
+      await prefs.setString('customer', jsonEncode(customer));
+      return customer;
+    } else {
+      print('Failed to load customer: ${response.statusCode}');
+      return null;
+    }
+  }
+
+
+
+  Future<void> saveCustomerId() async {
+    final customerData = await getCurrentCustomer(); // await the Future
+
+    if (customerData != null && customerData['id'] != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('customerId', customerData['id'] as int);
+      print('Customer ID saved: ${customerData['id']}');
+    } else {
+      print('Customer data is null or missing id');
+    }
+  }
+
+
 }

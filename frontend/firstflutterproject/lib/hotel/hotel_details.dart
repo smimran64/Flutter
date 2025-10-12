@@ -292,9 +292,11 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                                                   onPressed: () async {
                                                     // Save selected room & hotel info to SharedPreferences
                                                     SharedPreferences prefs = await SharedPreferences.getInstance();
+                                                    await prefs.setInt('hotelId', hotel.id );
                                                     await prefs.setString('selectedHotel', hotel.name);
                                                     await prefs.setString('selectedHotelAddress', hotel.address);
                                                     await prefs.setString('selectedRoomType', room.roomType);
+                                                    await prefs.setInt('roomId', room.id );
                                                     await prefs.setString('selectedPrice', room.price.toString());
                                                     await prefs.setString('selectedAdults', room.adults.toString());
                                                     await prefs.setString('selectedChildren', room.children.toString());
@@ -347,12 +349,17 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                                   ),
                                 );
 
+
+
                               },
                             ),
                           ],
                         );
                       },
                     ),
+
+
+
 
                   ],
                 ),

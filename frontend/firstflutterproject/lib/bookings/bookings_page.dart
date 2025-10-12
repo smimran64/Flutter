@@ -1,5 +1,7 @@
 
 
+import 'dart:convert';
+
 import 'package:firstflutterproject/service/booking_service.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -112,31 +114,68 @@ class _BookingsPageState extends State<BookingsPage> {
   }
 
   Future<void> _createBooking() async {
+
+    final prefs = await SharedPreferences.getInstance();
+
+
+
+    // Read IDs from SharedPreferences
+    final int roomId = prefs.getInt('roomId') ?? 0;
+    final int hotelId = prefs.getInt('hotelId') ?? 0;
+    final customerId = prefs.getInt('customerId') ?? '0';
+
+
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => isLoading = true);
 
+    // final bookingData = {
+    //   "customerName": nameCtrl.text,
+    //   "email": emailCtrl.text,
+    //   "phone": phoneCtrl.text,
+    //   "address": addressCtrl.text,
+    //   "hotelName": hotelNameCtrl.text,
+    //   "hotelAddress": hotelAddressCtrl.text,
+    //   "roomType": roomTypeCtrl.text,
+    //   "adults": int.tryParse(adultsCtrl.text) ?? 0,
+    //   "children": int.tryParse(childrenCtrl.text) ?? 0,
+    //   "pricePerNight": double.tryParse(priceCtrl.text) ?? 0,
+    //   "numRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
+    //   "checkIn": checkInCtrl.text,
+    //   "checkOut": checkOutCtrl.text,
+    //   "contractPerson": contactPersonCtrl.text,
+    //   "Phone": PhoneCtrl.text,
+    //   "totalAmount": double.tryParse(totalCtrl.text) ?? 0,
+    //   "advanceAmount": double.tryParse(advanceCtrl.text) ?? 0,
+    //   "dueAmount" : double.tryParse(dueAmountCtrl.text) ?? 0,
+    //
+    // };
+
+
     final bookingData = {
-      "customerName": nameCtrl.text,
-      "email": emailCtrl.text,
+      "contractPersonName": contactPersonCtrl.text,
       "phone": phoneCtrl.text,
-      "address": addressCtrl.text,
-      "hotelName": hotelNameCtrl.text,
-      "hotelAddress": hotelAddressCtrl.text,
-      "roomType": roomTypeCtrl.text,
-      "adults": int.tryParse(adultsCtrl.text) ?? 0,
-      "children": int.tryParse(childrenCtrl.text) ?? 0,
-      "pricePerNight": double.tryParse(priceCtrl.text) ?? 0,
-      "numRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
       "checkIn": checkInCtrl.text,
       "checkOut": checkOutCtrl.text,
-      "contractPerson": contactPersonCtrl.text,
-      "Phone": PhoneCtrl.text,
-      "totalAmount": double.tryParse(totalCtrl.text) ?? 0,
+      "numberOfRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
+      "discountRate": 0, // or from a controller if needed
       "advanceAmount": double.tryParse(advanceCtrl.text) ?? 0,
-      "dueAmount" : double.tryParse(dueAmountCtrl.text) ?? 0,
-
+      "totalAmount": double.tryParse(totalCtrl.text) ?? 0,
+      "dueAmount": double.tryParse(dueAmountCtrl.text) ?? 0,
+      "roomdto": {"id": roomId},
+      "hoteldto": {"id": hotelId},
+      "customerdto": {"id": customerId},
     };
+
+
+
+
+    // ✅ Pretty print as formatted JSON
+    const encoder = JsonEncoder.withIndent('  ');
+    print(encoder.convert(bookingData));
+
+
 
     try {
       // API call
@@ -145,11 +184,11 @@ class _BookingsPageState extends State<BookingsPage> {
       await _generateInvoicePdf(bookingData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Booking created & colorful invoice generated!")),
+        const SnackBar(content: Text("Booking created & invoice generated!")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("❌ Error: $e")));
+          .showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       setState(() => isLoading = false);
     }
@@ -282,7 +321,6 @@ class _BookingsPageState extends State<BookingsPage> {
                 _inputField("Phone", PhoneCtrl),
                 _inputField("Number of Rooms", numRoomsCtrl),
                 _inputField("Advance Paid", advanceCtrl),
-
                 _inputField("Customer Name", nameCtrl, readOnly: true),
                 _inputField("Email", emailCtrl, readOnly: true),
                 _inputField("Phone", phoneCtrl, readOnly: true),

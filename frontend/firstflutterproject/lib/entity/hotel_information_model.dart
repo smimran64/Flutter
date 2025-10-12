@@ -18,6 +18,7 @@ class HotelInformation {
   });
 
   factory HotelInformation.fromJson(Map<String, dynamic> json) {
+
     return HotelInformation(
       id: json['id'],
       ownerSpeach: json['ownerSpeach'],

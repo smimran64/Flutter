@@ -3,7 +3,7 @@
 
 
 import 'dart:convert';
-
+import 'package:firstflutterproject/entity/hotel_information_model.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart';
 import 'package:firstflutterproject/entity/room_model.dart';
 import 'package:http/http.dart' as http;
@@ -50,6 +50,22 @@ class HotelDetailsService{
       throw Exception('Failed to load rooms. Error: $e');
     }
   }
+
+
+  // for hotel information section
+
+Future<HotelInformation>fetchHotelInfo(int hotelId) async{
+
+  final url = Uri.parse("$baseUrl/api/hotel/information/hotel/$hotelId");
+
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    return HotelInformation.fromJson(json.decode(response.body));
+  } else {
+    throw Exception('Failed to load hotel information');
+  }
+}
 
 
 }

@@ -271,6 +271,10 @@ class _LoginpageState extends State<Loginpage> {
         final profileJson = await customerService.getCustomerProfile();
         final profile = CustomerModel.fromJson(profileJson!); // <-- fix here
 
+        final customers = AuthService().saveCustomerId();
+        final customersId = AuthService().saveCustomerId();
+
+
         if(profile != null){
           // SharedPreferences e customer info save kora
           SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -278,6 +282,13 @@ class _LoginpageState extends State<Loginpage> {
           prefs.setString('customerEmail', profile.email ?? '');
           prefs.setString('customerPhone', profile.phone ?? '');
           prefs.setString('customerAddress', profile.address ?? '');
+
+
+
+          if (profile.id != null) {
+            prefs.setInt('customerId', profile.id!);
+          }
+
 
           // Check if a redirect callback is provided (for Booking Page)
           if(widget.redirectAfterLogin != null){
