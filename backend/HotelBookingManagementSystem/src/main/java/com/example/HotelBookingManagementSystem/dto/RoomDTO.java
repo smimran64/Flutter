@@ -13,7 +13,6 @@ public class RoomDTO {
     private Double price;
     private int availableRooms;
     private int bookedRooms;
-
     private HotelDTO hotelDTO;
 
 

@@ -1,7 +1,4 @@
-
-
 import 'dart:convert';
-
 import 'package:firstflutterproject/service/booking_service.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -17,17 +14,13 @@ class BookingsPage extends StatefulWidget {
 }
 
 class _BookingsPageState extends State<BookingsPage> {
-
   final _formKey = GlobalKey<FormState>();
-
   final BookingService bookingService = BookingService();
 
-
-// controllers
-
+  // Controllers
   final nameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
-  final phoneCtrl = TextEditingController();
+  final phoneCtrl = TextEditingController(); // Customer phone
   final addressCtrl = TextEditingController();
   final hotelNameCtrl = TextEditingController();
   final hotelAddressCtrl = TextEditingController();
@@ -39,35 +32,28 @@ class _BookingsPageState extends State<BookingsPage> {
   final checkInCtrl = TextEditingController();
   final checkOutCtrl = TextEditingController();
   final contactPersonCtrl = TextEditingController();
-  final PhoneCtrl = TextEditingController();
+  final contactPhoneCtrl = TextEditingController(); // Hotel contact
   final totalCtrl = TextEditingController();
   final advanceCtrl = TextEditingController();
   final dueAmountCtrl = TextEditingController();
 
-
   bool isLoading = false;
-
 
   @override
   void initState() {
-
     super.initState();
     _loadBookingData();
 
     numRoomsCtrl.addListener(_updateTotalAmount);
     priceCtrl.addListener(_updateTotalAmount);
     advanceCtrl.addListener(_validateAdvance);
-
   }
-
 
   void _updateTotalAmount() {
     double price = double.tryParse(priceCtrl.text) ?? 0;
     int numRooms = int.tryParse(numRoomsCtrl.text) ?? 1;
     double total = price * numRooms;
     totalCtrl.text = total.toStringAsFixed(2);
-
-    // advance check
     _validateAdvance();
   }
 
@@ -82,18 +68,13 @@ class _BookingsPageState extends State<BookingsPage> {
       advanceCtrl.text = total.toStringAsFixed(2);
     }
 
-    // Due amount calculation
     double due = total - advance;
     dueAmountCtrl.text = due.toStringAsFixed(2);
-
   }
-
-
 
   Future<void> _loadBookingData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Home Page theke save kora data load kora
     hotelNameCtrl.text = prefs.getString('selectedHotel') ?? '';
     hotelAddressCtrl.text = prefs.getString('selectedHotelAddress') ?? '';
     checkInCtrl.text = prefs.getString('checkIn') ?? '';
@@ -103,36 +84,29 @@ class _BookingsPageState extends State<BookingsPage> {
     childrenCtrl.text = prefs.getString('selectedChildren') ?? '';
     priceCtrl.text = prefs.getString('selectedPrice') ?? '';
 
-
-    // Customer info load (already login ache dhore)
     nameCtrl.text = prefs.getString('customerName') ?? '';
     emailCtrl.text = prefs.getString('customerEmail') ?? '';
     phoneCtrl.text = prefs.getString('customerPhone') ?? '';
     addressCtrl.text = prefs.getString('customerAddress') ?? '';
 
-    setState(() {}); // UI update
+    setState(() {});
   }
 
   Future<void> _createBooking() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // ✅ Read IDs safely with int fallback
     final int roomId = prefs.getInt('roomId') ?? 0;
     final int hotelId = prefs.getInt('hotelId') ?? 0;
     final int customerId = prefs.getInt('customerId') ?? 0;
 
     if (!_formKey.currentState!.validate()) return;
 
-    // ✅ Trim all text fields to avoid null/empty issues
     final contractPerson = contactPersonCtrl.text.trim();
-    final phone = phoneCtrl.text.trim();
+    final contactPhone = contactPhoneCtrl.text.trim();
     final checkIn = checkInCtrl.text.trim();
     final checkOut = checkOutCtrl.text.trim();
 
-    if (contractPerson.isEmpty ||
-        phone.isEmpty ||
-        checkIn.isEmpty ||
-        checkOut.isEmpty) {
+    if (contractPerson.isEmpty || contactPhone.isEmpty || checkIn.isEmpty || checkOut.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all required fields")),
       );
@@ -141,10 +115,9 @@ class _BookingsPageState extends State<BookingsPage> {
 
     setState(() => isLoading = true);
 
-    // ✅ Prepare booking data safely
     final bookingData = {
       "contractPersonName": contractPerson,
-      "phone": phone,
+      "phone": contactPhone,
       "checkIn": checkIn,
       "checkOut": checkOut,
       "numberOfRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
@@ -157,16 +130,26 @@ class _BookingsPageState extends State<BookingsPage> {
       "customerdto": {"id": customerId},
     };
 
-    // ✅ Pretty print JSON for debug
-    const encoder = JsonEncoder.withIndent('  ');
-    print(encoder.convert(bookingData));
+    final pdfData = {
+      ...bookingData,
+      "hotelName": hotelNameCtrl.text,
+      "hotelAddress": hotelAddressCtrl.text,
+      "customerName": nameCtrl.text,
+      "email": emailCtrl.text,
+      "address": addressCtrl.text,
+      "roomType": roomTypeCtrl.text,
+      "adults": adultsCtrl.text,
+      "children": childrenCtrl.text,
+      "pricePerNight": priceCtrl.text,
+      "numRooms": numRoomsCtrl.text,
+      "contractPerson": contactPersonCtrl.text,
+      "hotelPhone": contactPhoneCtrl.text,
+      "advancePaid": double.tryParse(advanceCtrl.text) ?? 0.0,
+    };
 
     try {
-      // ✅ Call API
       final response = await bookingService.createBooking(bookingData);
-
-      // ✅ Generate invoice PDF
-      await _generateInvoicePdf(bookingData);
+      await _generateInvoicePdf(pdfData);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Booking created & invoice generated!")),
@@ -179,8 +162,6 @@ class _BookingsPageState extends State<BookingsPage> {
       setState(() => isLoading = false);
     }
   }
-
-
 
   Future<void> _generateInvoicePdf(Map<String, dynamic> booking) async {
     final pdf = pw.Document();
@@ -196,9 +177,7 @@ class _BookingsPageState extends State<BookingsPage> {
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(title,
-                style: pw.TextStyle(
-                    fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.Text(title, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 8),
             ...children,
           ],
@@ -214,42 +193,31 @@ class _BookingsPageState extends State<BookingsPage> {
           pw.Container(
             padding: const pw.EdgeInsets.all(12),
             decoration: pw.BoxDecoration(
-              gradient: pw.LinearGradient(
-                colors: [PdfColors.blue, PdfColors.purpleAccent],
-              ),
+              gradient: pw.LinearGradient(colors: [PdfColors.blue, PdfColors.purpleAccent]),
               borderRadius: pw.BorderRadius.circular(6),
             ),
             child: pw.Center(
               child: pw.Column(
                 children: [
-                  pw.Text("🏨 ${booking['hotelName']}",
-                      style: pw.TextStyle(
-                          fontSize: 24,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.white)),
+                  pw.Text("🏨 ${booking['hotelName']}", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
                   pw.SizedBox(height: 4),
-                  pw.Text(booking['hotelAddress'],
-                      style: pw.TextStyle(color: PdfColors.white)),
-                  pw.Text("Thank you for booking with us!",
-                      style: pw.TextStyle(color: PdfColors.white)),
+                  pw.Text(booking['hotelAddress'], style: pw.TextStyle(color: PdfColors.white)),
+                  pw.Text("Thank you for booking with us!", style: pw.TextStyle(color: PdfColors.white)),
                 ],
               ),
             ),
           ),
           pw.SizedBox(height: 15),
-
           section("Customer Information", PdfColors.lightBlue100, [
             pw.Text("Name: ${booking['customerName']}"),
             pw.Text("Email: ${booking['email']}"),
             pw.Text("Phone: ${booking['phone']}"),
             pw.Text("Address: ${booking['address']}"),
           ]),
-
           section("Hotel Information", PdfColors.orange100, [
             pw.Text("Name: ${booking['hotelName']}"),
             pw.Text("Address: ${booking['hotelAddress']}"),
           ]),
-
           section("Room Information", PdfColors.green100, [
             pw.Text("Room Type: ${booking['roomType']}"),
             pw.Text("Adults: ${booking['adults']}"),
@@ -261,23 +229,16 @@ class _BookingsPageState extends State<BookingsPage> {
             pw.Text("Contract Person: ${booking['contractPerson']}"),
             pw.Text("Phone: ${booking['hotelPhone']}"),
           ]),
-
           section("Payment Details", PdfColors.pink100, [
             pw.Text("Total Amount: \$${booking['totalAmount']}"),
             pw.Text("Advance Paid: \$${booking['advancePaid']}"),
             pw.Text("Due Amount: \$${(booking['totalAmount'] - booking['advancePaid']).toStringAsFixed(2)}"),
-
-
           ]),
-
           pw.SizedBox(height: 20),
           pw.Center(
             child: pw.Text(
               "We look forward to hosting you. Safe travels!",
-              style: pw.TextStyle(
-                fontStyle: pw.FontStyle.italic,
-                color: PdfColors.grey700,
-              ),
+              style: pw.TextStyle(fontStyle: pw.FontStyle.italic, color: PdfColors.grey700),
             ),
           ),
         ],
@@ -286,8 +247,6 @@ class _BookingsPageState extends State<BookingsPage> {
 
     await Printing.layoutPdf(onLayout: (format) => pdf.save());
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -302,10 +261,9 @@ class _BookingsPageState extends State<BookingsPage> {
           child: Form(
             key: _formKey,
             child: Column(
-
               children: [
                 _inputField("Contract Person", contactPersonCtrl),
-                _inputField("Phone", PhoneCtrl),
+                _inputField("Phone", contactPhoneCtrl),
                 _inputField("Number of Rooms", numRoomsCtrl),
                 _inputField("Advance Paid", advanceCtrl),
                 _inputField("Customer Name", nameCtrl, readOnly: true),
@@ -322,9 +280,6 @@ class _BookingsPageState extends State<BookingsPage> {
                 _inputField("Check-out (YYYY-MM-DD)", checkOutCtrl, readOnly: true),
                 _inputField("Total Amount", totalCtrl, readOnly: true),
                 _inputField("Due Amount", dueAmountCtrl, readOnly: true),
-
-
-
                 const SizedBox(height: 20),
                 isLoading
                     ? const CircularProgressIndicator()
@@ -332,9 +287,9 @@ class _BookingsPageState extends State<BookingsPage> {
                   icon: const Icon(Icons.add_circle, color: Colors.white),
                   label: const Text("Create Booking"),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 14)),
+                    backgroundColor: Colors.deepPurple,
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+                  ),
                   onPressed: _createBooking,
                 ),
               ],
@@ -358,10 +313,8 @@ class _BookingsPageState extends State<BookingsPage> {
           labelText: label,
           border: const OutlineInputBorder(),
         ),
-        validator: (value) =>
-        (value == null || value.isEmpty) ? "Required field" : null,
+        validator: (value) => (value == null || value.isEmpty) ? "Required field" : null,
       ),
     );
   }
-
 }

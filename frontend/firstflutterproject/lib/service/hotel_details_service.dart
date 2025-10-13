@@ -3,6 +3,7 @@
 
 
 import 'dart:convert';
+import 'package:firstflutterproject/entity/hotel_Aminities_model.dart';
 import 'package:firstflutterproject/entity/hotel_information_model.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart';
 import 'package:firstflutterproject/entity/room_model.dart';
@@ -41,12 +42,17 @@ class HotelDetailsService{
       print("Room API response body: ${response.body}");
 
       if (response.statusCode == 200) {
+
         final List data = jsonDecode(response.body);
+
         return data.map((e) => Room.fromJson(e)).toList();
+
       } else {
+
         throw Exception('Failed to load rooms. Status: ${response.statusCode}');
       }
     } catch (e) {
+
       throw Exception('Failed to load rooms. Error: $e');
     }
   }
@@ -65,6 +71,30 @@ Future<HotelInformation>fetchHotelInfo(int hotelId) async{
   } else {
     throw Exception('Failed to load hotel information');
   }
+}
+
+
+// hotel Amenities for home page
+
+Future<Amenities?> getAmenitiesByHotelId(int hotelId)async{
+    
+    final url = Uri.parse("$baseUrl/api/amenities//hotel/$hotelId");
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      return Amenities.fromJson(jsonData);
+    } else if (response.statusCode == 404) {
+
+      return null;
+
+    } else {
+
+      throw Exception("Failed to load amenities: ${response.statusCode}");
+
+    }
+    
 }
 
 
