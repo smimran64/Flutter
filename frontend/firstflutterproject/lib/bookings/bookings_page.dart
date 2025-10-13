@@ -20,7 +20,7 @@ class _BookingsPageState extends State<BookingsPage> {
   // Controllers
   final nameCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
-  final phoneCtrl = TextEditingController(); // Customer phone
+  final phoneCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final hotelNameCtrl = TextEditingController();
   final hotelAddressCtrl = TextEditingController();
@@ -32,7 +32,7 @@ class _BookingsPageState extends State<BookingsPage> {
   final checkInCtrl = TextEditingController();
   final checkOutCtrl = TextEditingController();
   final contactPersonCtrl = TextEditingController();
-  final contactPhoneCtrl = TextEditingController(); // Hotel contact
+  final contactPhoneCtrl = TextEditingController();
   final totalCtrl = TextEditingController();
   final advanceCtrl = TextEditingController();
   final dueAmountCtrl = TextEditingController();
@@ -103,10 +103,8 @@ class _BookingsPageState extends State<BookingsPage> {
 
     final contractPerson = contactPersonCtrl.text.trim();
     final contactPhone = contactPhoneCtrl.text.trim();
-    final checkIn = checkInCtrl.text.trim();
-    final checkOut = checkOutCtrl.text.trim();
 
-    if (contractPerson.isEmpty || contactPhone.isEmpty || checkIn.isEmpty || checkOut.isEmpty) {
+    if (contractPerson.isEmpty || contactPhone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all required fields")),
       );
@@ -118,8 +116,8 @@ class _BookingsPageState extends State<BookingsPage> {
     final bookingData = {
       "contractPersonName": contractPerson,
       "phone": contactPhone,
-      "checkIn": checkIn,
-      "checkOut": checkOut,
+      "checkIn": checkInCtrl.text,
+      "checkOut": checkOutCtrl.text,
       "numberOfRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
       "discountRate": 0.0,
       "advanceAmount": double.tryParse(advanceCtrl.text) ?? 0.0,
@@ -152,7 +150,7 @@ class _BookingsPageState extends State<BookingsPage> {
       await _generateInvoicePdf(pdfData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Booking created & invoice generated!")),
+        const SnackBar(content: Text("✅ Booking created & invoice generated!")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -166,79 +164,86 @@ class _BookingsPageState extends State<BookingsPage> {
   Future<void> _generateInvoicePdf(Map<String, dynamic> booking) async {
     final pdf = pw.Document();
 
-    pw.Widget section(String title, PdfColor bgColor, List<pw.Widget> children) {
-      return pw.Container(
-        margin: const pw.EdgeInsets.only(bottom: 10),
-        padding: const pw.EdgeInsets.all(10),
-        decoration: pw.BoxDecoration(
-          color: bgColor,
-          borderRadius: pw.BorderRadius.circular(8),
-        ),
-        child: pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(title, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-            pw.SizedBox(height: 8),
-            ...children,
-          ],
-        ),
-      );
-    }
+    final hotelName = booking['hotelName'] ?? "Hotel";
+    final invoiceDate = DateTime.now();
+    final invoiceId = "INV-${invoiceDate.millisecondsSinceEpoch}";
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(24),
         build: (context) => [
+
+          // Header
           pw.Container(
             padding: const pw.EdgeInsets.all(12),
             decoration: pw.BoxDecoration(
-              gradient: pw.LinearGradient(colors: [PdfColors.blue, PdfColors.purpleAccent]),
-              borderRadius: pw.BorderRadius.circular(6),
+              border: pw.Border.all(color: PdfColors.deepPurple),
+              borderRadius: pw.BorderRadius.circular(8),
             ),
-            child: pw.Center(
-              child: pw.Column(
-                children: [
-                  pw.Text("🏨 ${booking['hotelName']}", style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                  pw.SizedBox(height: 4),
-                  pw.Text(booking['hotelAddress'], style: pw.TextStyle(color: PdfColors.white)),
-                  pw.Text("Thank you for booking with us!", style: pw.TextStyle(color: PdfColors.white)),
-                ],
-              ),
+            child: pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Container(
+                  height: 60,
+                  width: 60,
+                  color: PdfColors.grey300,
+                  child: pw.Center(
+                    child: pw.Text("Logo", style: pw.TextStyle(fontSize: 12, color: PdfColors.grey)),
+                  ),
+                ),
+                pw.SizedBox(width: 12),
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(hotelName, style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                      pw.Text(booking['hotelAddress']),
+                      pw.SizedBox(height: 6),
+                      pw.Text("Invoice ID: $invoiceId"),
+                      pw.Text("Date: ${invoiceDate.toLocal().toString().split(' ')[0]}"),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          pw.SizedBox(height: 15),
-          section("Customer Information", PdfColors.lightBlue100, [
-            pw.Text("Name: ${booking['customerName']}"),
-            pw.Text("Email: ${booking['email']}"),
-            pw.Text("Phone: ${booking['phone']}"),
-            pw.Text("Address: ${booking['address']}"),
-          ]),
-          section("Hotel Information", PdfColors.orange100, [
-            pw.Text("Name: ${booking['hotelName']}"),
-            pw.Text("Address: ${booking['hotelAddress']}"),
-          ]),
-          section("Room Information", PdfColors.green100, [
-            pw.Text("Room Type: ${booking['roomType']}"),
-            pw.Text("Adults: ${booking['adults']}"),
-            pw.Text("Children: ${booking['children']}"),
-            pw.Text("Price per Night: \$${booking['pricePerNight']}"),
-            pw.Text("Number of Rooms: ${booking['numRooms']}"),
-            pw.Text("Check-in: ${booking['checkIn']}"),
-            pw.Text("Check-out: ${booking['checkOut']}"),
-            pw.Text("Contract Person: ${booking['contractPerson']}"),
-            pw.Text("Phone: ${booking['hotelPhone']}"),
-          ]),
-          section("Payment Details", PdfColors.pink100, [
-            pw.Text("Total Amount: \$${booking['totalAmount']}"),
-            pw.Text("Advance Paid: \$${booking['advancePaid']}"),
-            pw.Text("Due Amount: \$${(booking['totalAmount'] - booking['advancePaid']).toStringAsFixed(2)}"),
-          ]),
+
           pw.SizedBox(height: 20),
+          _infoSection("Customer Details", {
+            "Name": booking['customerName'],
+            "Email": booking['email'],
+            "Phone": booking['phone'],
+            "Address": booking['address'],
+          }),
+
+          _infoSection("Booking Details", {
+            "Room Type": booking['roomType'],
+            "Adults": booking['adults'],
+            "Children": booking['children'],
+            "Price/Night": "\$${booking['pricePerNight']}",
+            "Number of Rooms": booking['numRooms'],
+            "Check-in": booking['checkIn'],
+            "Check-out": booking['checkOut'],
+          }),
+
+          _infoSection("Hotel Contact", {
+            "Contact Person": booking['contractPerson'],
+            "Phone": booking['hotelPhone'],
+          }),
+
+          _infoSection("Payment Summary", {
+            "Total Amount": "\$${booking['totalAmount']}",
+            "Advance Paid": "\$${booking['advancePaid']}",
+            "Due Amount": "\$${(booking['totalAmount'] - booking['advancePaid']).toStringAsFixed(2)}",
+          }),
+
+          pw.SizedBox(height: 20),
+
           pw.Center(
             child: pw.Text(
-              "We look forward to hosting you. Safe travels!",
-              style: pw.TextStyle(fontStyle: pw.FontStyle.italic, color: PdfColors.grey700),
+              "Thank you for choosing $hotelName. We look forward to your stay!",
+              style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 12, color: PdfColors.grey700),
             ),
           ),
         ],
@@ -246,6 +251,44 @@ class _BookingsPageState extends State<BookingsPage> {
     );
 
     await Printing.layoutPdf(onLayout: (format) => pdf.save());
+  }
+
+  pw.Widget _infoSection(String title, Map<String, String> data) {
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 12),
+      padding: const pw.EdgeInsets.all(12),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: pw.BorderRadius.circular(6),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(title, style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 8),
+          pw.Table(
+            columnWidths: {
+              0: const pw.FractionColumnWidth(0.4),
+              1: const pw.FractionColumnWidth(0.6),
+            },
+            children: data.entries.map((e) {
+              return pw.TableRow(
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.symmetric(vertical: 4),
+                    child: pw.Text("${e.key}:", style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.symmetric(vertical: 4),
+                    child: pw.Text(e.value),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -266,6 +309,7 @@ class _BookingsPageState extends State<BookingsPage> {
                 _inputField("Phone", contactPhoneCtrl),
                 _inputField("Number of Rooms", numRoomsCtrl),
                 _inputField("Advance Paid", advanceCtrl),
+                const Divider(height: 24),
                 _inputField("Customer Name", nameCtrl, readOnly: true),
                 _inputField("Email", emailCtrl, readOnly: true),
                 _inputField("Phone", phoneCtrl, readOnly: true),
@@ -276,16 +320,16 @@ class _BookingsPageState extends State<BookingsPage> {
                 _inputField("Adults", adultsCtrl, readOnly: true),
                 _inputField("Children", childrenCtrl, readOnly: true),
                 _inputField("Price per Night", priceCtrl, readOnly: true),
-                _inputField("Check-in (YYYY-MM-DD)", checkInCtrl, readOnly: true),
-                _inputField("Check-out (YYYY-MM-DD)", checkOutCtrl, readOnly: true),
+                _inputField("Check-in", checkInCtrl, readOnly: true),
+                _inputField("Check-out", checkOutCtrl, readOnly: true),
                 _inputField("Total Amount", totalCtrl, readOnly: true),
                 _inputField("Due Amount", dueAmountCtrl, readOnly: true),
                 const SizedBox(height: 20),
                 isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton.icon(
-                  icon: const Icon(Icons.add_circle, color: Colors.white),
-                  label: const Text("Create Booking"),
+                  icon: const Icon(Icons.check_circle, color: Colors.white),
+                  label: const Text("Confirm Booking"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),

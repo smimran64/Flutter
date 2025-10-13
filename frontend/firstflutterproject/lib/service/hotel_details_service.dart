@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:firstflutterproject/entity/hotel_Aminities_model.dart';
 import 'package:firstflutterproject/entity/hotel_information_model.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart';
+import 'package:firstflutterproject/entity/hotel_photo_model.dart';
 import 'package:firstflutterproject/entity/room_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -78,7 +79,7 @@ Future<HotelInformation>fetchHotelInfo(int hotelId) async{
 
 Future<Amenities?> getAmenitiesByHotelId(int hotelId)async{
     
-    final url = Uri.parse("$baseUrl/api/amenities//hotel/$hotelId");
+    final url = Uri.parse("$baseUrl/api/amenities/hotel/$hotelId");
 
     final response = await http.get(url);
 
@@ -96,6 +97,19 @@ Future<Amenities?> getAmenitiesByHotelId(int hotelId)async{
     }
     
 }
+
+// 🆕 New method for fetching hotel photos
+
+  Future<List<HotelPhoto>> fetchHotelPhotos(int hotelId) async {
+    final response = await http.get(Uri.parse('$baseUrl/api/hotelPhoto/hotel/$hotelId'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => HotelPhoto.fromJson(json)).toList();
+    } else {
+      throw Exception("Failed to load hotel photos");
+    }
+  }
 
 
 }

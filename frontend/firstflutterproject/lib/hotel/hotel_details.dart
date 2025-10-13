@@ -2,6 +2,7 @@ import 'package:firstflutterproject/bookings/bookings_page.dart';
 import 'package:firstflutterproject/entity/hotel_Aminities_model.dart';
 import 'package:firstflutterproject/entity/hotel_information_model.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart';
+import 'package:firstflutterproject/entity/hotel_photo_model.dart';
 import 'package:firstflutterproject/entity/room_model.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
@@ -24,6 +25,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
   late Future<List<Room>> futureRooms;
   late Future<HotelInformation> futureHotelInfo;
   late Future<Amenities?> futureAmenities;
+  late Future<List<HotelPhoto>> futureHotelPhotos;
   final HotelDetailsService hotelDetailsService = HotelDetailsService();
   final AuthService authService = AuthService();
 
@@ -35,6 +37,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
     futureRooms = hotelDetailsService.fetchRoomByHotelId(widget.hotelId);
     futureHotelInfo = hotelDetailsService.fetchHotelInfo(widget.hotelId);
     futureAmenities = hotelDetailsService.getAmenitiesByHotelId(widget.hotelId);
+    futureHotelPhotos = hotelDetailsService.fetchHotelPhotos(widget.hotelId);
   }
 
   @override
@@ -599,73 +602,141 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                     },
                   ),
 
-                  // const SizedBox(height: 24),
-                  //
-                  // FutureBuilder<Amenities?>(
-                  //   future: futureAmenities,
-                  //   builder: (context, snapshot) {
-                  //     if (snapshot.connectionState == ConnectionState.waiting) {
-                  //       return const Center(child: CircularProgressIndicator());
-                  //     } else if (snapshot.hasError) {
-                  //       return Text(
-                  //         "Error loading amenities: ${snapshot.error}",
-                  //         style: const TextStyle(color: Colors.red),
-                  //       );
-                  //     } else if (!snapshot.hasData || snapshot.data == null) {
-                  //       return const SizedBox();
-                  //     }
-                  //
-                  //     final amenities = snapshot.data!;
-                  //
-                  //     return Column(
-                  //       crossAxisAlignment: CrossAxisAlignment.stretch,
-                  //       children: [
-                  //         const Padding(
-                  //           padding: EdgeInsets.symmetric(vertical: 16),
-                  //           child: Text(
-                  //             "🏨 Hotel Amenities",
-                  //             textAlign: TextAlign.center,
-                  //             style: TextStyle(
-                  //               fontSize: 22,
-                  //               fontWeight: FontWeight.bold,
-                  //               color: Colors.deepPurple,
-                  //             ),
-                  //           ),
-                  //         ),
-                  //         Card(
-                  //           elevation: 4,
-                  //           shape: RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(16),
-                  //           ),
-                  //           color: Colors.white.withOpacity(0.95),
-                  //           child: Padding(
-                  //             padding: const EdgeInsets.all(16),
-                  //             child: Wrap(
-                  //               spacing: 10,
-                  //               runSpacing: 10,
-                  //               children: [
-                  //                 if (amenities.freeWifi) _buildAmenityIcon(Icons.wifi, "Free WiFi"),
-                  //                 if (amenities.freeParking) _buildAmenityIcon(Icons.local_parking, "Free Parking"),
-                  //                 if (amenities.swimmingPool) _buildAmenityIcon(Icons.pool, "Swimming Pool"),
-                  //                 if (amenities.gym) _buildAmenityIcon(Icons.fitness_center, "Gym"),
-                  //                 if (amenities.restaurant) _buildAmenityIcon(Icons.restaurant, "Restaurant"),
-                  //                 if (amenities.roomService) _buildAmenityIcon(Icons.room_service, "Room Service"),
-                  //                 if (amenities.airConditioning) _buildAmenityIcon(Icons.ac_unit, "Air Conditioning"),
-                  //                 if (amenities.laundryService) _buildAmenityIcon(Icons.local_laundry_service, "Laundry"),
-                  //                 if (amenities.wheelchairAccessible) _buildAmenityIcon(Icons.accessible, "Wheelchair Access"),
-                  //                 if (amenities.healthServices) _buildAmenityIcon(Icons.medical_services, "Health Services"),
-                  //                 if (amenities.playGround) _buildAmenityIcon(Icons.sports_soccer, "Playground"),
-                  //                 if (amenities.airportSuttle) _buildAmenityIcon(Icons.airport_shuttle, "Airport Shuttle"),
-                  //                 if (amenities.breakFast) _buildAmenityIcon(Icons.free_breakfast, "Breakfast"),
-                  //               ],
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     );
-                  //
-                  //   },
-                  // ),
+                  const SizedBox(height: 24),
+
+                  FutureBuilder<Amenities?>(
+                    future: futureAmenities,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text(
+                          "Error loading amenities: ${snapshot.error}",
+                          style: const TextStyle(color: Colors.red),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data == null) {
+                        return const SizedBox();
+                      }
+
+                      final amenities = snapshot.data!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              "🏨 Hotel Amenities",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                          Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            color: Colors.white.withOpacity(0.95),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [
+                                  if (amenities.freeWifi) _buildAmenityIcon(Icons.wifi, "Free WiFi"),
+                                  if (amenities.freeParking) _buildAmenityIcon(Icons.local_parking, "Free Parking"),
+                                  if (amenities.swimmingPool) _buildAmenityIcon(Icons.pool, "Swimming Pool"),
+                                  if (amenities.gym) _buildAmenityIcon(Icons.fitness_center, "Gym"),
+                                  if (amenities.restaurant) _buildAmenityIcon(Icons.restaurant, "Restaurant"),
+                                  if (amenities.roomService) _buildAmenityIcon(Icons.room_service, "Room Service"),
+                                  if (amenities.airConditioning) _buildAmenityIcon(Icons.ac_unit, "Air Conditioning"),
+                                  if (amenities.laundryService) _buildAmenityIcon(Icons.local_laundry_service, "Laundry"),
+                                  if (amenities.wheelchairAccessible) _buildAmenityIcon(Icons.accessible, "Wheelchair Access"),
+                                  if (amenities.healthServices) _buildAmenityIcon(Icons.medical_services, "Health Services"),
+                                  if (amenities.playGround) _buildAmenityIcon(Icons.sports_soccer, "Playground"),
+                                  if (amenities.airportSuttle) _buildAmenityIcon(Icons.airport_shuttle, "Airport Shuttle"),
+                                  if (amenities.breakFast) _buildAmenityIcon(Icons.free_breakfast, "Breakfast"),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+
+                    },
+                  ),
+
+
+                  const SizedBox(height: 30,),
+
+
+                  FutureBuilder<List<HotelPhoto>>(
+                    future: futureHotelPhotos,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Text(
+                          "Error loading photos: ${snapshot.error}",
+                          style: const TextStyle(color: Colors.red),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const SizedBox(); // No photos
+                      }
+
+                      final photos = snapshot.data!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12.0),
+                            child: Text(
+                              "📸 Hotel Gallery",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 180,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: photos.length,
+                              itemBuilder: (context, index) {
+                                final photo = photos[index];
+                                final imageUrl = "http://localhost:8082${photo.photoUrl}";
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.network(
+                                      imageUrl,
+                                      width: 240,
+                                      height: 180,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => Container(
+                                        width: 240,
+                                        height: 180,
+                                        color: Colors.grey[200],
+                                        child: const Icon(Icons.broken_image, size: 50),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+
 
                 ],
               ),
@@ -679,11 +750,11 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
 
   }
 
-  // Widget _buildAmenityIcon(IconData icon, String label) {
-  //   return Chip(
-  //     avatar: Icon(icon, color: Colors.deepPurple),
-  //     label: Text(label),
-  //     backgroundColor: Colors.deepPurple.shade50,
-  //   );
-  // }
+  Widget _buildAmenityIcon(IconData icon, String label) {
+    return Chip(
+      avatar: Icon(icon, color: Colors.deepPurple),
+      label: Text(label),
+      backgroundColor: Colors.deepPurple.shade50,
+    );
+  }
 }
