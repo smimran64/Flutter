@@ -222,7 +222,7 @@ class AuthService {
 
     if (customerData != null && customerData['id'] != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('customerId', customerData['id'] as int);
+      await prefs.setInt('customerId', customerData['id']);
       print('Customer ID saved: ${customerData['id']}');
     } else {
       print('Customer data is null or missing id');

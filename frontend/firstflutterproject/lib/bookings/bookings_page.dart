@@ -114,85 +114,72 @@ class _BookingsPageState extends State<BookingsPage> {
   }
 
   Future<void> _createBooking() async {
-
     final prefs = await SharedPreferences.getInstance();
 
-
-
-    // Read IDs from SharedPreferences
+    // ✅ Read IDs safely with int fallback
     final int roomId = prefs.getInt('roomId') ?? 0;
     final int hotelId = prefs.getInt('hotelId') ?? 0;
-    final customerId = prefs.getInt('customerId') ?? '0';
-
-
+    final int customerId = prefs.getInt('customerId') ?? 0;
 
     if (!_formKey.currentState!.validate()) return;
 
+    // ✅ Trim all text fields to avoid null/empty issues
+    final contractPerson = contactPersonCtrl.text.trim();
+    final phone = phoneCtrl.text.trim();
+    final checkIn = checkInCtrl.text.trim();
+    final checkOut = checkOutCtrl.text.trim();
+
+    if (contractPerson.isEmpty ||
+        phone.isEmpty ||
+        checkIn.isEmpty ||
+        checkOut.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields")),
+      );
+      return;
+    }
+
     setState(() => isLoading = true);
 
-    // final bookingData = {
-    //   "customerName": nameCtrl.text,
-    //   "email": emailCtrl.text,
-    //   "phone": phoneCtrl.text,
-    //   "address": addressCtrl.text,
-    //   "hotelName": hotelNameCtrl.text,
-    //   "hotelAddress": hotelAddressCtrl.text,
-    //   "roomType": roomTypeCtrl.text,
-    //   "adults": int.tryParse(adultsCtrl.text) ?? 0,
-    //   "children": int.tryParse(childrenCtrl.text) ?? 0,
-    //   "pricePerNight": double.tryParse(priceCtrl.text) ?? 0,
-    //   "numRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
-    //   "checkIn": checkInCtrl.text,
-    //   "checkOut": checkOutCtrl.text,
-    //   "contractPerson": contactPersonCtrl.text,
-    //   "Phone": PhoneCtrl.text,
-    //   "totalAmount": double.tryParse(totalCtrl.text) ?? 0,
-    //   "advanceAmount": double.tryParse(advanceCtrl.text) ?? 0,
-    //   "dueAmount" : double.tryParse(dueAmountCtrl.text) ?? 0,
-    //
-    // };
-
-
+    // ✅ Prepare booking data safely
     final bookingData = {
-      "contractPersonName": contactPersonCtrl.text,
-      "phone": phoneCtrl.text,
-      "checkIn": checkInCtrl.text,
-      "checkOut": checkOutCtrl.text,
+      "contractPersonName": contractPerson,
+      "phone": phone,
+      "checkIn": checkIn,
+      "checkOut": checkOut,
       "numberOfRooms": int.tryParse(numRoomsCtrl.text) ?? 1,
-      "discountRate": 0, // or from a controller if needed
-      "advanceAmount": double.tryParse(advanceCtrl.text) ?? 0,
-      "totalAmount": double.tryParse(totalCtrl.text) ?? 0,
-      "dueAmount": double.tryParse(dueAmountCtrl.text) ?? 0,
+      "discountRate": 0.0,
+      "advanceAmount": double.tryParse(advanceCtrl.text) ?? 0.0,
+      "totalAmount": double.tryParse(totalCtrl.text) ?? 0.0,
+      "dueAmount": double.tryParse(dueAmountCtrl.text) ?? 0.0,
       "roomdto": {"id": roomId},
       "hoteldto": {"id": hotelId},
       "customerdto": {"id": customerId},
     };
 
-
-
-
-    // ✅ Pretty print as formatted JSON
+    // ✅ Pretty print JSON for debug
     const encoder = JsonEncoder.withIndent('  ');
     print(encoder.convert(bookingData));
 
-
-
     try {
-      // API call
+      // ✅ Call API
       final response = await bookingService.createBooking(bookingData);
-      // Generate colorful invoice
+
+      // ✅ Generate invoice PDF
       await _generateInvoicePdf(bookingData);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Booking created & invoice generated!")),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     } finally {
       setState(() => isLoading = false);
     }
   }
+
 
 
   Future<void> _generateInvoicePdf(Map<String, dynamic> booking) async {

@@ -5,10 +5,10 @@
 
 // models/booking.dart
 import 'dart:convert';
-import 'dart:ffi';
+
 
 class Booking {
-  Long id;
+  int id;
   String contractPersonName;
   String phone;
   DateTime checkIn;
@@ -19,7 +19,7 @@ class Booking {
   double advanceAmount;
   double dueAmount;
   CustomerDto? customerdto;
-  // HotelDto? hoteldto;
+  HotelDto? hoteldto;
   RoomDto? roomdto;
 
   Booking({
@@ -34,7 +34,7 @@ class Booking {
     required this.advanceAmount,
     required this.dueAmount,
     this.customerdto,
-    // this.hoteldto,
+    this.hoteldto,
     this.roomdto,
   });
 
@@ -50,7 +50,7 @@ class Booking {
     advanceAmount: (json['advanceAmount'] ?? 0).toDouble(),
     dueAmount: (json['dueAmount'] ?? 0).toDouble(),
     customerdto: json['customerdto'] != null ? CustomerDto.fromJson(json['customerdto']) : null,
-    // hoteldto: json['hoteldto'] != null ? HotelDto.fromJson(json['hoteldto']) : null,
+    hoteldto: json['hoteldto'] != null ? HotelDto.fromJson(json['hoteldto']) : null,
     roomdto: json['roomdto'] != null ? RoomDto.fromJson(json['roomdto']) : null,
   );
 
@@ -66,7 +66,7 @@ class Booking {
     'advanceAmount': advanceAmount,
     'dueAmount': dueAmount,
     'customerdto': customerdto?.toJson(),
-    // 'hoteldto': hoteldto?.toJson(),
+    'hoteldto': hoteldto?.toJson(),
     'roomdto': roomdto?.toJson(),
   };
 }
@@ -115,37 +115,37 @@ class CustomerDto {
   };
 }
 
-// class HotelDto {
-//   int id;
-//   String name;
-//   String address;
-//   String rating;
-//   String image;
-//
-//   HotelDto({
-//     required this.id,
-//     required this.name,
-//     required this.address,
-//     required this.rating,
-//     required this.image,
-//   });
-//
-//   factory HotelDto.fromJson(Map<String, dynamic> json) => HotelDto(
-//     id: json['id'],
-//     name: json['name'] ?? '',
-//     address: json['address'] ?? '',
-//     rating: json['rating'] ?? '',
-//     image: json['image'] ?? '',
-//   );
-//
-//   Map<String, dynamic> toJson() => {
-//     'id': id,
-//     'name': name,
-//     'address': address,
-//     'rating': rating,
-//     'image': image,
-//   };
-// }
+class HotelDto {
+  int id;
+  String name;
+  String address;
+  String rating;
+  String image;
+
+  HotelDto({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.rating,
+    required this.image,
+  });
+
+  factory HotelDto.fromJson(Map<String, dynamic> json) => HotelDto(
+    id: json['id'],
+    name: json['name'] ?? '',
+    address: json['address'] ?? '',
+    rating: json['rating'] ?? '',
+    image: json['image'] ?? '',
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'address': address,
+    'rating': rating,
+    'image': image,
+  };
+}
 
 class RoomDto {
   int id;
@@ -157,6 +157,7 @@ class RoomDto {
   double price;
   int availableRooms;
   int bookedRooms;
+  HotelDto? hotelDto; // ✅ add this
 
   RoomDto({
     required this.id,
@@ -168,6 +169,7 @@ class RoomDto {
     required this.price,
     required this.availableRooms,
     required this.bookedRooms,
+    this.hotelDto,
   });
 
   factory RoomDto.fromJson(Map<String, dynamic> json) => RoomDto(
@@ -180,6 +182,9 @@ class RoomDto {
     price: (json['price'] ?? 0).toDouble(),
     availableRooms: json['availableRooms'] ?? 0,
     bookedRooms: json['bookedRooms'] ?? 0,
+    // hotelDto: json['hotelDTO'] != null
+    //     ? HotelDto.fromJson(json['hotelDTO'])
+    //     : null, // ✅ handle null
   );
 
   Map<String, dynamic> toJson() => {
@@ -192,5 +197,8 @@ class RoomDto {
     'price': price,
     'availableRooms': availableRooms,
     'bookedRooms': bookedRooms,
+    'hotelDTO': hotelDto?.toJson(),
   };
 }
+
+

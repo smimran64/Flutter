@@ -30,15 +30,25 @@ class Room {
   factory Room.fromJson(Map<String, dynamic> json) {
     return Room(
       id: json['id'],
-      roomType: json['roomType'],
-      image: json['image'],
-      totalRooms: json['totalRooms'],
-      adults: json['adults'],
-      children: json['children'],
-      price: json['price'].toDouble(),
-      availableRooms: json['availableRooms'],
-      bookedRooms: json['bookedRooms'],
-      hotel: Hotel.fromJson(json['hotelDTO']),
+      roomType: json['roomType'] ?? '',
+      image: json['image'] ?? '',
+      totalRooms: json['totalRooms'] ?? 0,
+      adults: json['adults'] ?? 0,
+      children: json['children'] ?? 0,
+      price: (json['price'] ?? 0).toDouble(),
+      availableRooms: json['availableRooms'] ?? 0,
+      bookedRooms: json['bookedRooms'] ?? 0,
+      hotel: json['hotelDTO'] != null
+          ? Hotel.fromJson(json['hotelDTO'])
+          : Hotel(
+        id: 0,
+        name: 'Unknown',
+        address: 'Unknown',
+        rating: '0',
+        image: 'no_image.png',
+        location: Location(id: 0, name: 'Unknown', image: 'no_image.png'),
+      ),
     );
   }
+
 }

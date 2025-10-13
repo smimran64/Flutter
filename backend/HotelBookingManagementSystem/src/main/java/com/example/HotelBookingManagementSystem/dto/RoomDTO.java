@@ -1,5 +1,7 @@
 package com.example.HotelBookingManagementSystem.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class RoomDTO {
 
     private Long id;
@@ -11,6 +13,7 @@ public class RoomDTO {
     private Double price;
     private int availableRooms;
     private int bookedRooms;
+
     private HotelDTO hotelDTO;
 
 

@@ -12,7 +12,6 @@ import 'package:intl/intl.dart';
 import 'package:firstflutterproject/entity/location_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 void main() {
   runApp(const HotelBookingApp());
 }
@@ -26,7 +25,7 @@ class HotelBookingApp extends StatelessWidget {
       title: 'Hotel Booking Management System',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
@@ -35,7 +34,6 @@ class HotelBookingApp extends StatelessWidget {
   }
 }
 
-// Converted to a StatefulWidget to manage scroll controller and keys
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -44,76 +42,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Keys to identify each section for scrolling
-  final GlobalKey _homeKey = GlobalKey();
-  final GlobalKey _servicesKey = GlobalKey();
-  final GlobalKey _goalsKey = GlobalKey();
-  final GlobalKey _galleryKey = GlobalKey();
-  final GlobalKey _aboutKey = GlobalKey();
-  final GlobalKey _officeKey = GlobalKey();
-
-  // Controller to manage scrolling
-  late ScrollController _scrollController;
-  bool _showScrollButton = false;
-
-
-
   Location? selectedLocation;
   DateTime? checkInDate;
   DateTime? checkOutDate;
-
   List<Location> locations = [];
   List<Hotel> hotels = [];
   bool isLoading = false;
+  final GlobalKey _galleryKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-
     _loadLocations();
-
-    _scrollController = ScrollController()
-      ..addListener(() {
-        // Show button when user scrolls down
-        if (_scrollController.offset > 300) {
-          if (!_showScrollButton) {
-            setState(() {
-              _showScrollButton = true;
-            });
-          }
-        } else {
-          if (_showScrollButton) {
-            setState(() {
-              _showScrollButton = false;
-            });
-          }
-        }
-      });
   }
 
-
-
   void _loadLocations() async {
+
+
     try {
       var fetchedLocations = await LocationService().getAllLocations();
-      print("Fetched locations: $fetchedLocations");
-
       setState(() {
-        locations = List<Location>.from(fetchedLocations); // cast safely
+        locations = List<Location>.from(fetchedLocations);
       });
     } catch (e) {
-      print("Failed to load locations: $e");
+      print('Failed to load locations: $e');
     }
   }
 
-
-
-
   void _searchHotels() async {
     if (selectedLocation == null || checkInDate == null || checkOutDate == null) {
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select location and dates")),
+        const SnackBar(content: Text('Please select location and dates')),
       );
       return;
     }
@@ -125,7 +84,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() => isLoading = true);
 
-    final df = DateFormat('yyyy-MM-dd'); // Convert DateTime to API-compatible string
+    final df = DateFormat('yyyy-MM-dd');
     hotels = await HotelService().searchHotels(
       locationId: selectedLocation!.id,
       checkIn: df.format(checkInDate!),
@@ -135,822 +94,209 @@ class _HomePageState extends State<HomePage> {
     setState(() => isLoading = false);
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  void _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => Loginpage()));
   }
 
-  // Function to scroll to a specific section
-  void _scrollToSection(GlobalKey key) {
-    final context = key.currentContext;
-    if (context != null) {
-      Scrollable.ensureVisible(
-        context,
-        duration: const Duration(seconds: 1),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
+  final List<String> carouselImages = [
+    'https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg',
+    'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg',
+    'https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg',
+    'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg',
+    'https://images.pexels.com/photos/573552/pexels-photo-573552.jpeg',
+  ];
 
-  // // Helper function to launch URL
-  // Future<void> _launchURL(String url) async {
-  //   final Uri uri = Uri.parse(url);
-  //   if (!await launchUrl(uri)) {
-  //     throw 'Could not launch $url';
-  //   }
-  // }
+  final List<String> destinations = [
+    'Dhaka',
+    'Cox\'s Bazar',
+    'Sylhet',
+    'Bandarban',
+    'Chittagong'
+  ];
+
+  final List<String> destinationImages = [
+    'https://images.pexels.com/photos/753626/pexels-photo-753626.jpeg',
+    'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg',
+    'https://images.pexels.com/photos/2104151/pexels-photo-2104151.jpeg',
+    'https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg',
+    'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg'
+  ];
+
+
 
   @override
   Widget build(BuildContext context) {
-    // We use a LayoutBuilder to make the design responsive.
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final bool isDesktop = constraints.maxWidth > 800;
-        return Scaffold(
-          backgroundColor: const Color(0xffF5F5F5),
-          // Added floating action buttons for scrolling
-          floatingActionButton: _showScrollButton
-              ? Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FloatingActionButton(
-                onPressed: () {
-                  _scrollController.animateTo(
-                    0,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                mini: true,
-                tooltip: 'Scroll to Top',
-                backgroundColor: Colors.blue.shade700,
-                child: const Icon(Icons.arrow_upward, color: Colors.white),
-              ),
-              const SizedBox(height: 10),
-              FloatingActionButton(
-                onPressed: () {
-                  _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInOut,
-                  );
-                },
-                mini: true,
-                tooltip: 'Scroll to Bottom',
-                backgroundColor: Colors.blue.shade700,
-                child: const Icon(Icons.arrow_downward, color: Colors.white),
-              ),
-            ],
-          )
-              : null,
-          body: SingleChildScrollView(
-            controller: _scrollController, // Assigned controller
-            child: Column(
-              children: [
-                // Part 1: Header and Hero Section combined in a Stack
-                Stack(
-                  key: _homeKey, // Key for Home section
-                  children: [
-                    // The stunning background image
-                    _buildHeroBackground(),
-                    // The content on top of the image
-                    Column(
-                      children: [
-                        _buildAppBar(context, isDesktop),
-                        _buildHeroContent(context),
-                      ],
-                    ),
-                  ],
-                ),
-                // Part 2: Services Section
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Column(
-                    children: [
-                      _buildSectionTitle("Hotel List"),
-                      const SizedBox(height: 30),
-                      _buildHotelList(),
-                    ],
-                  ),
-                ),
-
-
-                Padding(
-                  key: _servicesKey,
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Column(
-                    children: [
-                      _buildSectionTitle("Our Services"),
-                      const SizedBox(height: 30),
-                      _buildServicesSection(),
-                    ],
-                  ),
-                ),
-
-                // Part 3: About Section
-                Padding(
-                  key: _aboutKey,
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Column(
-                    children: [
-                      _buildSectionTitle("About Us"),
-                      const SizedBox(height: 30),
-                      _buildAboutSection(context, isDesktop),
-                    ],
-                  ),
-                ),
-
-                // Part 4: Local Office Section
-                Padding(
-                  key: _officeKey,
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Column(
-                    children: [
-                      _buildSectionTitle("Our Local Office"),
-                      const SizedBox(height: 30),
-                      _buildOfficeSection(context, isDesktop),
-                    ],
-                  ),
-                ),
-
-                // Part 5: Goals Section
-                Padding(
-                  key: _goalsKey,
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Column(
-                    children: [
-                      _buildSectionTitle("Our Goals"),
-                      const SizedBox(height: 30),
-                      _buildGoalsSection(context, isDesktop),
-                    ],
-                  ),
-                ),
-
-                // Part 6: Photo Gallery
-                Padding(
-                  key: _galleryKey,
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Column(
-                    children: [
-                      _buildSectionTitle("Explore Our Gallery"),
-                      const SizedBox(height: 30),
-                      _buildGallerySection(),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 100),
-
-                // Part 7: Footer
-                _buildFooter(),
-              ],
-            ),
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text('HBMS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Loginpage())),
+            icon: const Icon(Icons.person, color: Colors.white),
           ),
-        );
-      },
-    );
-  }
-
-  // Widget for the background image of the hero section
-  Widget _buildHeroBackground() {
-    return Container(
-      height: 700,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage('https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.black.withOpacity(0.6), Colors.black.withOpacity(0.2)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            )
-        ),
-      ),
-    );
-  }
-
-  // Custom App Bar / Header
-  Widget _buildAppBar(BuildContext context, bool isDesktop) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: const Text(
-              'Hotel Booking Management System',
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          if (isDesktop)
-            Flexible(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _HeaderLink('Home', onTap: () => _scrollToSection(_homeKey)),
-                    _HeaderLink('Services', onTap: () => _scrollToSection(_servicesKey)),
-                    _HeaderLink('About', onTap: () => _scrollToSection(_aboutKey)),
-                    _HeaderLink('Local Office', onTap: () => _scrollToSection(_officeKey)),
-                    _HeaderLink('Goals', onTap: () => _scrollToSection(_goalsKey)),
-                    const SizedBox(width: 40),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Loginpage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.blue.shade800,
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Sign In'),
-                    ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        AuthService().logout();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue.shade700,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      child: const Text('Sign Up'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          if (!isDesktop)
-            IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white, size: 30),
-              onPressed: () {
-                // TODO: open drawer or bottom sheet menu
-              },
-            ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildHeroContent(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min, // 👈 এটা যুক্ত করো
-        children: [
-          const FadeInUp(
-            delay: 0.5,
-            child: Text(
-              'Find Your Next Stay',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 60,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                shadows: [Shadow(blurRadius: 10, color: Colors.black54)],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const FadeInUp(
-            delay: 0.8,
-            child: Text(
-              'Discover amazing deals on hotels, private homes, and more...',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          const SizedBox(height: 50),
-          FadeInUp(
-            delay: 1.1,
-            child: _buildSearchBar(context),
+          IconButton(
+            onPressed: _logout,
+            icon: const Icon(Icons.logout, color: Colors.white),
           ),
         ],
       ),
-    );
-  }
-
-
-  Widget _buildSearchBar(BuildContext context) {
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          width: MediaQuery.of(context).size.width * 0.75,
-          constraints: const BoxConstraints(maxWidth: 900),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.white.withOpacity(0.3)),
-          ),
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 20,
-            runSpacing: 20,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
             children: [
-              // 🔹 Location Dropdown
-              Container(
-                width: 200,
-                child: DropdownButtonFormField<Location>(
-                  value: selectedLocation,
-                  hint: const Text('Select Location'),
-                  items: locations.map((loc) {
-                    return DropdownMenuItem(
-                      value: loc,
-                      child: Text(loc.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() => selectedLocation = value);
-                  },
-                ),
-              ),
-
-              // 🔹 Check-in Date Picker
-              _buildDateField(
-                label: 'Check-in',
-                date: checkInDate,
-                onTap: () async {
-                  DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2030),
-                  );
-                  if (picked != null) setState(() => checkInDate = picked);
-                },
-              ),
-
-              // 🔹 Check-out Date Picker
-              _buildDateField(
-                label: 'Check-out',
-                date: checkOutDate,
-                onTap: () async {
-                  DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: checkInDate ?? DateTime.now(),
-                    firstDate: checkInDate ?? DateTime.now(),
-                    lastDate: DateTime(2030),
-                  );
-                  if (picked != null) setState(() => checkOutDate = picked);
-                },
-              ),
-
-              // 🔹 Search Button
-              ElevatedButton.icon(
-                onPressed: _searchHotels,
-                icon: const Icon(Icons.search),
-                label: const Text('Search'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 22),
-                  backgroundColor: Colors.blue.shade600,
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDateField({
-    required String label,
-    required DateTime? date,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: 180,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today, color: Colors.blue),
-            const SizedBox(width: 8),
-            Text(
-              date != null ? "${date.day}/${date.month}/${date.year}" : label,
-              style: const TextStyle(color: Colors.black),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-  Widget _buildSearchField(BuildContext context, IconData icon, String hintText) {
-    return SizedBox(
-      width: 200,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey.shade800),
-          prefixIcon: Icon(icon, color: Colors.grey.shade800),
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.8),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        ),
-      ),
-    );
-  }
-
-
-
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
-    );
-  }
-
-
-  Widget _buildHotelList() {
-    final String baseUrl = "http://localhost:8082/images/hotels";
-
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (hotels.isEmpty) {
-      return const Center(child: Text("No hotels found"));
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-
-        int crossAxis = 1;
-        if (constraints.maxWidth > 1200) {
-          crossAxis = 3;
-        } else if (constraints.maxWidth > 800) {
-          crossAxis = 2;
-        }
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxis,
-            crossAxisSpacing: 20,
-            mainAxisSpacing: 20,
-            childAspectRatio: 3 / 2, // image + text ratio
-          ),
-          itemCount: hotels.length,
-          itemBuilder: (context, index) {
-            final hotel = hotels[index];
-            return Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              clipBehavior: Clip.hardEdge,
-              elevation: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              // 🌅 Hero Section
+              Stack(
                 children: [
-                  // Flexible Image Container
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(
-                            '$baseUrl/${Uri.encodeComponent(hotel.image)}',
-                          ),
-                          fit: BoxFit.cover,
-                        ),
+                  Container(
+                    height: 260,
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage('https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg'),
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          hotel.name,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 23),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          hotel.address,
-                          style: const TextStyle(color: Colors.black, fontSize: 18),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          hotel.location.name,
-                          style: const TextStyle(color: Colors.black, fontSize: 18),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        const SizedBox(height: 6),
-                        Row(
+                  Container(
+                    height: 260,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    left: 16,
+                    right: 16,
+                    child: Card(
+                      elevation: 8,
+                      color: Colors.white.withOpacity(0.95),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
                           children: [
-                            const Icon(Icons.star, color: Colors.amber, size: 18),
-                            const SizedBox(width: 4),
-                            Text(hotel.rating.toString(),
-                                style: const TextStyle(fontSize: 14)),
+                            DropdownButtonFormField<Location>(
+                              value: selectedLocation,
+                              hint: const Text('Select Location'),
+                              items: locations.map((loc) => DropdownMenuItem(value: loc, child: Text(loc.name))).toList(),
+                              onChanged: (value) => setState(() => selectedLocation = value),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildDateField('Check-in', checkInDate, (picked) {
+                                    setState(() => checkInDate = picked);
+                                  }),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: _buildDateField('Check-out', checkOutDate, (picked) {
+                                    setState(() => checkOutDate = picked);
+                                  }),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton(
+                                  onPressed: _searchHotels,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.teal,
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                                  ),
+                                  child: const Text('Search'),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
-                        const SizedBox(height: 6),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async{
-
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              prefs.setString('selectedHotel', hotel.name);
-                              prefs.setInt('selectedHotelId', hotel.id);
-
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => HotelDetailsPage(hotelId: hotel.id))
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-
-
-                              ),
-                            ),
-                            child: const Text("View Details"),
-
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            );
-          },
-        );
-      },
-    );
-  }
 
+              const SizedBox(height: 20),
 
-
-  Widget _buildServicesSection() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Wrap(
-        spacing: 30,
-        runSpacing: 30,
-        alignment: WrapAlignment.center,
-        children: [
-          _buildServiceCard(Icons.wifi, "Free Wi-Fi", "Stay connected with high-speed internet access."),
-          _buildServiceCard(Icons.pool, "Swimming Pool", "Relax and rejuvenate in our sparkling clean pool."),
-          _buildServiceCard(Icons.restaurant_menu, "Fine Dining", "Experience exquisite cuisine at our in-house restaurant."),
-          _buildServiceCard(Icons.local_parking, "Free Parking", "Enjoy the convenience of complimentary parking."),
-          _buildServiceCard(Icons.fitness_center, "Gym", "Stay fit and healthy at our state-of-the-art gym."),
-          _buildServiceCard(Icons.room_service, "Room Service", "24/7 room service to cater to all your needs."),
-          _buildServiceCard(Icons.medical_services_outlined, "Health Service", "Access to primary medical care for emergencies."),
-          _buildServiceCard(Icons.local_laundry_service, "Laundry Service", "On-site laundry and dry cleaning services."),
-          _buildServiceCard(Icons.child_friendly, "Playground", "A safe and fun play area for your children."),
-          _buildServiceCard(Icons.accessible, "Accessibility", "Wheelchair accessible rooms and facilities."),
-          _buildServiceCard(Icons.airport_shuttle, "Airport Shuttle", "Convenient shuttle service to and from the airport."),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceCard(IconData icon, String title, String description) {
-    return Container(
-      width: 250,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 5,
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 40, color: Colors.blue.shade600),
-          const SizedBox(height: 15),
-          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          Text(description, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade600)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAboutSection(BuildContext context, bool isDesktop) {
-    return _buildTwoColumnSection(
-      context,
-      isDesktop,
-      imageUrl: 'https://images.pexels.com/photos/1268855/pexels-photo-1268855.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      title: "Welcome to HBMS Web Site",
-      content: "Founded with a passion for hospitality, DaduVai Hotels offers a blend of modern luxury and timeless elegance. Our mission is to create a welcoming atmosphere where guests can relax, unwind, and create lasting memories. We believe in the power of exceptional service and strive to exceed your expectations at every turn. Come and experience the unique charm of DaduVai Hotels.",
-      imageOnLeft: false,
-    );
-  }
-
-  Widget _buildOfficeSection(BuildContext context, bool isDesktop) {
-    final Widget textDetails = Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text("Get In Touch", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          _buildContactInfo(Icons.location_pin, "Address:", "123 Hotel Road, Gulshan Avenue, Dhaka-1212, Bangladesh"),
-          _buildContactInfo(Icons.email, "Email:", "support@hbms.com"),
-          _buildContactInfo(Icons.phone, "Phone:", "+880 123 456 7890"),
-        ],
-      ),
-    );
-
-    final Widget mapPlaceholder = Expanded(
-      child: GestureDetector(
-        onTap: () {
-          // In a real app, you would launch the URL.
-          // _launchURL('https://www.google.com/maps/place/Gulshan,+Dhaka,+Bangladesh');
-        },
-        child: Container(
-          height: 300,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            image: const DecorationImage(
-              image: NetworkImage('https://images.pexels.com/photos/3746279/pexels-photo-3746279.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: Colors.black.withOpacity(0.4),
-            ),
-            child: const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.map, color: Colors.white, size: 50),
-                  SizedBox(height: 10),
-                  Text("Open in Google Maps", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ],
+              // 🏨 Available Hotels
+              _buildSectionTitle('🏨 Available Hotels'),
+              isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : hotels.isEmpty
+                  ? const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text('No hotels found', style: TextStyle(color: Colors.grey)),
+              )
+                  : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: hotels.length,
+                itemBuilder: (context, index) => _buildHotelCard(hotels[index]),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Container(
-        padding: const EdgeInsets.all(30),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: isDesktop
-            ? Row(
-          children: [textDetails, const SizedBox(width: 40), mapPlaceholder],
-        )
-            : Column(
-          children: [textDetails, const SizedBox(height: 30), mapPlaceholder],
-        ),
-      ),
-    );
-  }
+              const SizedBox(height: 25),
 
-  Widget _buildContactInfo(IconData icon, String title, String detail) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.blue.shade600),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text(detail),
+              // 🔥 Hot Deals Carousel
+              _buildSectionTitle('🔥 Hot Deals'),
+              SizedBox(
+                height: 190,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: carouselImages.length,
+                  itemBuilder: (context, index) => _buildCarouselCard(carouselImages[index]),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // 🌍 Popular Destinations
+              _buildSectionTitle('🌍 Popular Destinations'),
+              SizedBox(
+                height: 160,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: destinations.length,
+                  itemBuilder: (context, index) => _buildDestinationCard(destinations[index], destinationImages[index]),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              //Part 6: Photo Gallery
+                  Padding(
+                       key: _galleryKey, padding: const EdgeInsets.symmetric(vertical: 50.0),
+                       child: Column( children: [ _buildSectionTitle("Explore Our Gallery"),
+                       const SizedBox(height: 30), _buildGallerySection(),
+                    ]
+
+                      ),
+                                ),
+
+
+
+              // 💬 Customer Reviews
+              _buildSectionTitle('💬 Customer Reviews'),
+              _buildReviewCard('Imran', 'Amazing hotel and staff service!', 5),
+              _buildReviewCard('Sadiar', 'Clean rooms and great view.', 4),
+              _buildReviewCard('Rafi', 'Loved the breakfast buffet!', 5),
+
+              const SizedBox(height: 40),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildGoalsSection(BuildContext context, bool isDesktop) {
-    return _buildTwoColumnSection(
-      context,
-      isDesktop,
-      imageUrl: 'https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      title: "Your Comfort is Our Priority",
-      content: "At Out Hotel Booking Management System, our goal is simple: to provide an unparalleled hospitality experience. We are committed to offering exceptional service, luxurious comfort, and memorable moments for every guest. From our meticulously designed rooms to our world-class amenities, every detail is crafted with your satisfaction in mind. We strive to be more than just a place to stay—we aim to be your home away from home.",
-      imageOnLeft: true,
-    );
-  }
-
-  // A generic widget for sections with an image and text
-  Widget _buildTwoColumnSection(BuildContext context, bool isDesktop, {required String imageUrl, required String title, required String content, required bool imageOnLeft}) {
-    final Widget image = ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: Image.network(
-        imageUrl,
-        height: 350,
-        width: isDesktop ? 400 : double.infinity,
-        fit: BoxFit.cover,
-      ),
-    );
-
-    final Widget textContent = SizedBox(
-      width: isDesktop ? MediaQuery.of(context).size.width * 0.4 : double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            content,
-            style: TextStyle(fontSize: 16, color: Colors.grey.shade600, height: 1.6),
-          ),
-        ],
-      ),
-    );
-
-    final children = imageOnLeft ? [image, const SizedBox(width: 50), textContent] : [textContent, const SizedBox(width: 50), image];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: isDesktop
-          ? Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: children,
-      )
-          : Column(
-        children: [image, const SizedBox(height: 30), textContent],
-      ),
-    );
-  }
 
   Widget _buildGallerySection() {
     final images = [
@@ -963,291 +309,203 @@ class _HomePageState extends State<HomePage> {
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        alignment: WrapAlignment.center,
-        children: images.map((url) => _buildGalleryImage(url)).toList(),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: images.length,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 200, // ⬅️ Max width per tile
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.5,
+        ),
+        itemBuilder: (context, index) => _buildGalleryImage(images[index]),
       ),
     );
   }
+
 
   Widget _buildGalleryImage(String imageUrl) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(15),
       child: Image.network(
         imageUrl,
-        width: 300,
-        height: 200,
         fit: BoxFit.cover,
-      ),
-    );
-  }
-
-
-  Widget _buildFooter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 40),
-      color: Colors.grey.shade900,
-      child: Column(
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final bool isWide = constraints.maxWidth > 800;
-              return isWide ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _footerContent(),
-              ) : Column(
-                children: _footerContent(isColumn: true),
-              );
-            },
-          ),
-          const SizedBox(height: 40),
-          const Divider(color: Colors.grey),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("© 2024 Hotel Booking Management System. All Rights Reserved.", style: TextStyle(color: Colors.grey.shade400)),
-              Row(
-                children: [
-                  _SocialIcon(Icons.facebook),
-                  _SocialIcon(Icons.camera_alt),
-                  _SocialIcon(Icons.label_important), // Placeholder for X/Twitter
-                ],
-              )
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _footerContent({bool isColumn = false}) {
-    return [
-      Expanded(
-        flex: isColumn ? 0 : 2,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: isColumn ? 30 : 0),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Hotel Booking Management System", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-              SizedBox(height: 10),
-              Text("Providing quality hospitality and memorable experiences since 2023.", style: TextStyle(color: Colors.grey)),
-            ],
-          ),
+        width: double.infinity,
+        height: double.infinity,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return const Center(child: CircularProgressIndicator());
+        },
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey.shade200,
+          child: const Icon(Icons.broken_image, color: Colors.grey),
         ),
       ),
-      SizedBox(width: isColumn ? 0 : 30, height: isColumn ? 30 : 0),
-      Expanded(
-        flex: isColumn ? 0 : 2,
-        child: _buildFooterLinks("Quick Links", ["Home", "Bookings", "Services", "About Us"]),
-      ),
-      SizedBox(width: isColumn ? 0 : 30, height: isColumn ? 30 : 0),
-      Expanded(
-        flex: isColumn ? 0 : 3,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+
+  Widget _buildDateField(String label, DateTime? date, Function(DateTime) onPick) {
+    return InkWell(
+      onTap: () async {
+        DateTime? picked = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2030),
+        );
+        if (picked != null) onPick(picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.teal.shade50,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
           children: [
-            const Text("Subscribe", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-            const SizedBox(height: 15),
-            const Text("Get the latest deals and updates from us.", style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 15),
-            Row(
-              children: [
-                const Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Your email address',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      filled: true,
-                      fillColor: Color(0xFF333333),
-                      border: OutlineInputBorder(borderSide: BorderSide.none),
-                    ),
-                  ),
+            const Icon(Icons.calendar_today, size: 16, color: Colors.teal),
+            const SizedBox(width: 6),
+            Text(date != null ? DateFormat('dd MMM').format(date) : label),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal)),
+    ),
+  );
+
+  Widget _buildHotelCard(Hotel hotel) => AnimatedContainer (
+    duration: const Duration(milliseconds: 300),
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: InkWell(
+      onTap: () async {
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('selectedHotel', hotel.name);
+        prefs.setInt('selectedHotelId', hotel.id);
+        Navigator.push(context, MaterialPageRoute(builder: (_) => HotelDetailsPage(hotelId: hotel.id)));
+      },
+      child: Card(
+
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
+              child: Image.network(
+                'http://localhost:8082/images/hotels/${Uri.encodeComponent(hotel.image)}',
+                width: 120,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(hotel.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Text(hotel.address, style: const TextStyle(color: Colors.grey)),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 14),
+                        const SizedBox(width: 4),
+                        Text(hotel.rating.toString()),
+                      ],
+                    )
+                  ],
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(onPressed: () {}, child: const Text("Go"), style: ElevatedButton.styleFrom(backgroundColor: Colors.blue.shade600, foregroundColor: Colors.white)),
-              ],
+              ),
             )
           ],
         ),
       ),
-    ];
-  }
+    ),
+  );
 
-
-  Widget _buildFooterLinks(String title, List<String> links) {
-    return Column(
+  Widget _buildCarouselCard(String imageUrl) => AnimatedContainer(
+    duration: const Duration(milliseconds: 400),
+    margin: const EdgeInsets.only(right: 12),
+    width: 200,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(16),
+      color: Colors.white,
+      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+    ),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-        const SizedBox(height: 15),
-        ...links.map((link) => _FooterLink(link)).toList(),
+        ClipRRect(
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+          child: Image.network(imageUrl, height: 110, width: double.infinity, fit: BoxFit.cover),
+        ),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text('Special Offer Hotel', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text('Starting from \$99/night', style: TextStyle(color: Colors.grey)),
+        )
       ],
-    );
-  }
-}
+    ),
+  );
 
-// Custom widget for header links with hover effect
-class _HeaderLink extends StatefulWidget {
-  final String text;
-  final VoidCallback onTap; // Added onTap callback
-  const _HeaderLink(this.text, {required this.onTap, super.key});
+  Widget _buildDestinationCard(String name, String imageUrl) => Container(
+    width: 140,
+    margin: const EdgeInsets.only(right: 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.network(imageUrl, height: 100, width: 140, fit: BoxFit.cover),
+        ),
+        const SizedBox(height: 6),
+        Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+      ],
+    ),
+  );
 
-  @override
-  __HeaderLinkState createState() => __HeaderLinkState();
-}
 
-class __HeaderLinkState extends State<_HeaderLink> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector( // Wrapped with GestureDetector to make it clickable
-        onTap: widget.onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            widget.text,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: _isHovered ? Colors.blue.shade200 : Colors.white,
-              decoration: _isHovered ? TextDecoration.underline : TextDecoration.none,
-              decorationColor: Colors.blue.shade200,
+  Widget _buildReviewCard(String name, String review, int rating) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    child: Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: const CircleAvatar(
+          backgroundColor: Colors.teal,
+          child: Icon(Icons.person, color: Colors.white),
+        ),
+        title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(review),
+            const SizedBox(height: 4),
+            Row(
+              children: List.generate(
+                rating,
+                    (index) => const Icon(Icons.star, color: Colors.amber, size: 16),
+              ),
             ),
-          ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
-
-// Custom widget for footer links with hover effect
-class _FooterLink extends StatefulWidget {
-  final String text;
-  const _FooterLink(this.text);
-
-  @override
-  __FooterLinkState createState() => __FooterLinkState();
-}
-
-class __FooterLinkState extends State<_FooterLink> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text(
-            widget.text,
-            style: TextStyle(
-              color: _isHovered ? Colors.blue.shade300 : Colors.grey,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Custom widget for social icons with hover effect
-class _SocialIcon extends StatefulWidget {
-  final IconData icon;
-  const _SocialIcon(this.icon);
-
-  @override
-  __SocialIconState createState() => __SocialIconState();
-}
-
-class __SocialIconState extends State<_SocialIcon> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: IconButton(
-        onPressed: () {},
-        icon: Icon(
-          widget.icon,
-          color: _isHovered ? Colors.blue.shade300 : Colors.white,
-        ),
-      ),
-    );
-  }
-}
-
-
-// A simple Fade-in and slide-up animation widget
-class FadeInUp extends StatefulWidget {
-  final Widget child;
-  final double delay;
-
-  const FadeInUp({super.key, required this.child, this.delay = 0});
-
-  @override
-  _FadeInUpState createState() => _FadeInUpState();
-}
-
-class _FadeInUpState extends State<FadeInUp> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-  late Animation<Offset> _position;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-
-    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    _position = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    Future.delayed(Duration(milliseconds: (widget.delay * 1000).round()), () {
-      if (mounted) {
-        _controller.forward();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacity,
-      child: SlideTransition(
-        position: _position,
-        child: widget.child,
-      ),
-    );
-  }
-}
-
