@@ -2,10 +2,10 @@ import 'package:firstflutterproject/entity/customer_model.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
- // <-- Ensure your CustomerModel path is correct
+
 
 class CustomerProfile extends StatelessWidget {
-  final CustomerModel profile; // <-- Use the model object now
+  final CustomerModel profile;
   final AuthService _authService = AuthService();
 
   CustomerProfile({Key? key, required this.profile}) : super(key: key);

@@ -1,4 +1,5 @@
 import 'package:firstflutterproject/bookings/bookings_page.dart';
+import 'package:firstflutterproject/entity/hotel_information_model.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart';
 import 'package:firstflutterproject/entity/room_model.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
@@ -19,6 +20,7 @@ class HotelDetailsPage extends StatefulWidget {
 class _HotelDetailsPageState extends State<HotelDetailsPage> {
   late Future<Hotel> futureHotel;
   late Future<List<Room>> futureRooms;
+  late Future<HotelInformation> futureHotelInfo;
   final HotelDetailsService hotelDetailsService = HotelDetailsService();
   final AuthService authService = AuthService();
 
@@ -28,6 +30,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
 
     futureHotel = hotelDetailsService.getHotelById(widget.hotelId);
     futureRooms = hotelDetailsService.fetchRoomByHotelId(widget.hotelId);
+    futureHotelInfo = hotelDetailsService.fetchHotelInfo(widget.hotelId);
   }
 
   @override
@@ -176,7 +179,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                       final rooms = roomSnapshot.data!;
 
                       return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 8),
@@ -189,215 +192,245 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                               ),
                             ),
                           ),
-                          GridView.builder(
+                          ListView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: rooms.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 180,
-                                  mainAxisSpacing: 16,
-                                  crossAxisSpacing: 16,
-                                  childAspectRatio:
-                                      0.60, // ✅ Balanced ratio to avoid overflow
-                                ),
                             itemBuilder: (context, index) {
                               final room = rooms[index];
                               final roomImageUrl =
                                   "http://localhost:8082/images/rooms/${room.image}";
 
-                              return Card(
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: InkWell(
                                   borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // 🖼 Image
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(16),
-                                      ),
-                                      child: Image.network(
-                                        roomImageUrl,
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        loadingBuilder:
-                                            (context, child, loadingProgress) {
-                                              if (loadingProgress == null)
-                                                return child;
-                                              return Container(
-                                                height: 120,
-                                                color: Colors.grey[200],
-                                                child: const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
+                                  onTap: () async {
+                                    SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                    await prefs.setInt('hotelId', hotel.id);
+                                    await prefs.setString('selectedHotel', hotel.name);
+                                    await prefs.setString('selectedHotelAddress', hotel.address);
+                                    await prefs.setString('selectedRoomType', room.roomType);
+                                    await prefs.setInt('roomId', room.id);
+                                    await prefs.setString('selectedPrice', room.price.toString());
+                                    await prefs.setString('selectedAdults', room.adults.toString());
+                                    await prefs.setString('selectedChildren', room.children.toString());
+
+                                    if (await authService.isLoggedIn() &&
+                                        await authService.isCustomer()) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (_) => BookingsPage()),
+                                      );
+                                    } else {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Loginpage(
+                                            redirectAfterLogin: () async {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (_) => BookingsPage()),
                                               );
                                             },
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                Container(
-                                                  height: 120,
-                                                  color: Colors.grey[200],
-                                                  child: const Icon(
-                                                    Icons.bed,
-                                                    size: 60,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                      ),
-                                    ),
-
-                                    // 🛏 Info + Button wrapped in Expanded
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 8,
+                                          ),
                                         ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              room.roomType,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
+                                      );
+                                    }
+                                  },
+                                  child: Card(
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: SizedBox(
+                                      height: 140,
+                                      child: Row(
+                                        children: [
+                                          // Left Half: Image
+                                          Expanded(
+                                            flex: 1,
+                                            child: ClipRRect(
+                                              borderRadius: const BorderRadius.horizontal(
+                                                left: Radius.circular(16),
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              "৳${room.price.toStringAsFixed(0)}",
-                                              style: const TextStyle(
-                                                color: Colors.green,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              "Adults: ${room.adults}, Children: ${room.children}",
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              "Available: ${room.availableRooms}",
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black54,
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                            SizedBox(
-                                              width: double.infinity,
-                                              child: ElevatedButton(
-                                                onPressed: () async {
-                                                  // Save selected room & hotel info to SharedPreferences
-                                                  SharedPreferences prefs =
-                                                      await SharedPreferences.getInstance();
-                                                  await prefs.setInt(
-                                                    'hotelId',
-                                                    hotel.id,
+                                              child: Image.network(
+                                                roomImageUrl,
+                                                fit: BoxFit.cover,
+                                                height: double.infinity,
+                                                loadingBuilder: (context, child, loadingProgress) {
+                                                  if (loadingProgress == null) return child;
+                                                  return Container(
+                                                    color: Colors.grey[200],
+                                                    child: const Center(
+                                                      child: CircularProgressIndicator(),
+                                                    ),
                                                   );
-                                                  await prefs.setString(
-                                                    'selectedHotel',
-                                                    hotel.name,
-                                                  );
-                                                  await prefs.setString(
-                                                    'selectedHotelAddress',
-                                                    hotel.address,
-                                                  );
-                                                  await prefs.setString(
-                                                    'selectedRoomType',
-                                                    room.roomType,
-                                                  );
-                                                  await prefs.setInt(
-                                                    'roomId',
-                                                    room.id,
-                                                  );
-                                                  await prefs.setString(
-                                                    'selectedPrice',
-                                                    room.price.toString(),
-                                                  );
-                                                  await prefs.setString(
-                                                    'selectedAdults',
-                                                    room.adults.toString(),
-                                                  );
-                                                  await prefs.setString(
-                                                    'selectedChildren',
-                                                    room.children.toString(),
-                                                  );
-
-                                                  if (await authService
-                                                          .isLoggedIn() &&
-                                                      await authService
-                                                          .isCustomer()) {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            BookingsPage(),
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) => Loginpage(
-                                                          redirectAfterLogin: () async {
-                                                            // After login, push BookingsPage
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder: (_) =>
-                                                                    BookingsPage(),
-                                                              ),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }
                                                 },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.deepPurple,
-                                                  foregroundColor: Colors.white,
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        vertical: 10,
+                                                errorBuilder: (context, error, stackTrace) =>
+                                                    Container(
+                                                      color: Colors.grey[200],
+                                                      child: const Icon(
+                                                        Icons.bed,
+                                                        size: 60,
+                                                        color: Colors.grey,
                                                       ),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  "Book Now",
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                                    ),
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+
+                                          // Right Half: Room Details
+                                          Expanded(
+                                            flex: 1,
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  vertical: 12, horizontal: 12),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    room.roomType,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    "৳${room.price.toStringAsFixed(0)}",
+                                                    style: const TextStyle(
+                                                      color: Colors.green,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    "Adults: ${room.adults}, Children: ${room.children}",
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "Available: ${room.availableRooms}",
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black54,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
                               );
                             },
+                          )
+
+
+
+                        ],
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  FutureBuilder<HotelInformation>(
+                    future: futureHotelInfo,
+                    builder: (context, infoSnapshot) {
+                      if (infoSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (infoSnapshot.hasError) {
+                        return Text(
+                          "Error loading hotel info: ${infoSnapshot.error}",
+                          style: const TextStyle(color: Colors.red),
+                        );
+                      } else if (!infoSnapshot.hasData) {
+                        return const SizedBox(); // Nothing to show
+                      }
+
+                      final info = infoSnapshot.data!;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              "🏨 Hotel Information",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                          Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            color: Colors.white.withOpacity(0.95),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "📣 Owner's Message",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    info.ownerSpeach,
+                                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  const Text(
+                                    "📝 Description",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    info.description,
+                                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  const Text(
+                                    "📜 Hotel Policy",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    info.hotelPolicy.trim().replaceAll(RegExp(r'\n+'), '\n\n'),
+                                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       );
