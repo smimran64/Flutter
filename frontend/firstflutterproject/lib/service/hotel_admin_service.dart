@@ -33,7 +33,7 @@ class HotelAdminService{
 
     // convert Customer into JSON string and add to request fields
 
-    request.fields['customer'] = jsonEncode(hotelAdmin);
+    request.fields['hotelAdmin'] = jsonEncode(hotelAdmin);
 
     // -++++++++++++++++ Image Handling-++++++++++++++++++
 

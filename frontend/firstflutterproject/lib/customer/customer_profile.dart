@@ -1,3 +1,4 @@
+import 'package:firstflutterproject/customer/Bookings_history.dart';
 import 'package:firstflutterproject/entity/customer_model.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
@@ -58,8 +59,22 @@ class CustomerProfile extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.work),
               title: const Text('Booking History'),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                if (profile.id != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingHistoryPage(customerId: profile.id!),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Customer ID not found")),
+                  );
+                }
+              },
             ),
+
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),

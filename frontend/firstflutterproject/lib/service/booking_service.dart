@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:firstflutterproject/entity/booking_model.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BookingService {
   final String baseUrl = "http://localhost:8082/api/booking";
@@ -66,6 +68,39 @@ class BookingService {
   }
 
 
+  Future<List<Booking>> getBookingByCustomerId(int customerId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('authToken');
+
+    print("🪪 Token from SharedPreferences: $token");
+
+    final url = Uri.parse("$baseUrl/customer/$customerId");
+    print("🔗 Fetching: $url");
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null && token.isNotEmpty)
+          'Authorization': 'Bearer $token', // 🔥 critical line
+      },
+    );
+
+    print("📦 Status: ${response.statusCode}");
+    print("📄 Response: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Booking.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load bookings: ${response.statusCode}');
+    }
+  }
+  }
 
 
-}
+
+
+
+
+
