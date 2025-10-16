@@ -1,5 +1,6 @@
 
 
+import 'package:firstflutterproject/hotel_admin/hotel_managed_by_hotel_admin.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,10 @@ class HotelAdminProfile extends StatelessWidget {
               leading: const Icon(Icons.work),
               title: const Text('Hotel Manage History'),
               onTap: (){
-                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyHotelsPage())
+                );
               },
             ),
 

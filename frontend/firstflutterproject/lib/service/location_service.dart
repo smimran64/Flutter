@@ -89,4 +89,19 @@ class LocationService{
       return false;
     }
   }
+
+  // Future<List<Location>> fetchLocations(String token) async {
+  //   final response = await http.get(
+  //     Uri.parse("$baseUrl/api/location/all"),
+  //     headers: {'Authorization': 'Bearer $token'},
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     List<dynamic> data = jsonDecode(response.body);
+  //     return data.map((json) => Location.fromJson(json)).toList();
+  //   } else {
+  //     throw Exception("Failed to load locations");
+  //   }
+  // }
+
 }
