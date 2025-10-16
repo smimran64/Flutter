@@ -40,216 +40,239 @@ class _LoginpageState extends State<Loginpage> {
 
   var _isVisible = false;
 
+
   @override
   Widget build(BuildContext context) {
-
-
-
     final deviceHeight = MediaQuery.of(context).size.height;
     final deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xff540dda), Color(0xff8e44ad)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  SizedBox(height: deviceHeight * 0.05),
 
-              // Logo Image
-              Container(
-                height: deviceHeight * 0.30,
-                margin: EdgeInsets.only(top: 20),
-                child: FittedBox(
-                  child: CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/hotellogo.jpg'),
-                    radius: 120,
+                  // Logo with animation
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 500),
+                    height: deviceHeight * 0.25,
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage('assets/images/hotellogo.jpg'),
+                      radius: 90,
+                    ),
                   ),
-                ),
-              ),
 
-              // Login Form Container
-              Container(
-                height: deviceHeight * 0.65,
-                width: double.infinity,
-                margin: EdgeInsets.symmetric(horizontal: 10),
-                child: LayoutBuilder(
-                  builder: (ctx, constraints) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  SizedBox(height: 20),
+
+                  Text(
+                    'Welcome Back!',
+                    style: GoogleFonts.poppins(
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Login to continue',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      color: Colors.white70,
+                    ),
+                  ),
+
+                  SizedBox(height: 40),
+
+                  // Email Field
+                  _buildTextField(
+                    controller: email,
+                    icon: Icons.email,
+                    hintText: 'Email',
+                    isPassword: false,
+                  ),
+                  SizedBox(height: 20),
+
+                  // Password Field
+                  _buildTextField(
+                    controller: password,
+                    icon: Icons.lock,
+                    hintText: 'Password',
+                    isPassword: true,
+                    toggleVisibility: () {
+                      setState(() {
+                        _isVisible = !_isVisible;
+                      });
+                    },
+                    isVisible: _isVisible,
+                  ),
+
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.poppins(color: Colors.white),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+
+                  // Login Button
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        loginUser(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 6,
+                        shadowColor: Colors.black45,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Color(0xff540dda),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        'Login',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 30),
+
+                  // Registration as Customer
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      text: "Don't have an account?\n",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
                       children: [
-
-                        Text(
-                          'Login Now',
-                          style: TextStyle(
-                              fontSize:36,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xffc10ff4)
+                        TextSpan(
+                          text: 'Create a Customer Account',
+                          style: GoogleFonts.poppins(
+                            color: Colors.amberAccent,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
                           ),
-                        ),
-                        SizedBox(height: constraints.maxHeight *0.01),
-                        Text('Please enter the details below to continue'),
-                        SizedBox(height: constraints.maxHeight *0.08),
-
-                        // Email TextField
-                        Container(
-                          height: constraints.maxHeight *0.12,
-                          decoration: BoxDecoration(
-                            color: Color(0xffB4B4B4).withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Center(
-                              child: TextField(
-                                controller: email,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Email',
-                                  prefixIcon: Icon(Icons.email),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: constraints.maxHeight *0.02),
-
-                        // Password TextField
-                        Container(
-                          height: constraints.maxHeight *0.12,
-                          decoration: BoxDecoration(
-                            color: Color(0xffB4B4B4).withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Center(
-                              child: TextField(
-                                controller: password,
-                                obscureText: !_isVisible,
-                                decoration: InputDecoration(
-                                  suffixIcon: IconButton(
-                                    onPressed:() {
-                                      setState(() {
-                                        _isVisible = !_isVisible;
-                                      });
-                                    },
-                                    icon: Icon(
-                                      _isVisible ? Icons.visibility : Icons.visibility_off,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  border: InputBorder.none,
-                                  hintText: 'Password',
-                                  prefixIcon: Icon(Icons.password),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                'Forgot Password?',
-                                style: TextStyle(
-                                  color: Color(0xffF80849),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // Login Button
-                        Container(
-                          width: double.infinity,
-                          height: constraints.maxHeight *0.12,
-                          margin: EdgeInsets.only(top: constraints.maxHeight *0.05),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              loginUser(context);
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => Registration()),
+                              );
                             },
-                            child: Text(
-                              'Login',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
-                                color: Color(0xfffbf5f7),
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xff540dda),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(28)
-                              ),
-                            ),
-                          ),
                         ),
-
-                        SizedBox(height: constraints.maxHeight *0.02),
-
-                        // Registration Links
-                        RichText(
-                          text: TextSpan(
-                            text: "Don't have an account? ",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'Create a New Account As A Customer',
-                                style: TextStyle(
-                                  color: Color(0xffF80849),
-                                  fontSize: 18,
-                                ),
-                                recognizer: TapGestureRecognizer()..onTap = () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => Registration()),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(height: constraints.maxHeight *0.02),
-
-                        ElevatedButton(
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context)=> HotelAdminRegistration()),
-                            );
-                          },
-                          child: Text(
-                            'Registration as a Hotel Admin',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontFamily: GoogleFonts.lato().fontFamily
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
-                              foregroundColor: Colors.white
-                          ),
-                        ),
-
                       ],
-                    );
-                  },
-                ),
-              ),
+                    ),
+                  ),
 
-            ],
+                  SizedBox(height: 20),
+
+                  // Registration as Hotel Admin
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HotelAdminRegistration()),
+                      );
+                    },
+                    icon: Icon(Icons.business),
+                    label: Text(
+                      'Register as Hotel Admin',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.tealAccent.shade700,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    ),
+                  ),
+
+                  SizedBox(height: 30),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
+
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required IconData icon,
+    required String hintText,
+    bool isPassword = false,
+    bool isVisible = false,
+    VoidCallback? toggleVisibility,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 6,
+            offset: Offset(2, 2),
+          )
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword && !isVisible,
+        style: TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          prefixIcon: Icon(icon, color: Colors.white),
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.white70),
+          suffixIcon: isPassword
+              ? IconButton(
+            icon: Icon(
+              isVisible ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white70,
+            ),
+            onPressed: toggleVisibility,
+          )
+              : null,
+          contentPadding: EdgeInsets.symmetric(vertical: 20),
+        ),
+      ),
+    );
+  }
+
+
 
   // Existing login function
   Future<void> loginUser(BuildContext context) async{
