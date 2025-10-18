@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.teal,
         elevation: 0,
         centerTitle: true,
-        title: const Text('HBMS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Hotel Booking Management System', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Loginpage())),

@@ -37,4 +37,45 @@ class HotelInformationService{
     }
   }
 
+
+  // save hotel informaton
+
+
+  Future<HotelInformation> saveHotelInformation(HotelInformation info) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/hotel/information/save'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id': info.id,
+        'ownerSpeach': info.ownerSpeach,
+        'description': info.description,
+        'hotelPolicy': info.hotelPolicy,
+        'hotelId': info.hotelId,
+        'hotelName': info.hotelName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return HotelInformation.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to save hotel information');
+    }
+  }
+
+
+  Future<HotelInformation?> getHotelInformationByHotelId(int hotelId) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/hotel/information/hotel/$hotelId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return HotelInformation.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 404) {
+      return null;
+    } else {
+      throw Exception('Failed to load hotel information');
+    }
+  }
+
 }

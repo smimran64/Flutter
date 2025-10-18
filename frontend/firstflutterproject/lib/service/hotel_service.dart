@@ -3,8 +3,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firstflutterproject/entity/hotel_model.dart';
-import 'package:firstflutterproject/service/authservice.dart';
+import 'package:firstflutterproject/entity/hotel_model.dart' hide Location;
+import 'package:firstflutterproject/entity/location_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -115,32 +115,81 @@ class HotelService {
   }
 
 
+  /// Fetch all locations for dropdown
+  Future<List<Location>> getAllLocations() async {
+    // String? token = await AuthService().getToken();
+    //
+    // if (token == null) {
+    //   print('No token found, please login first');
+    //   return [];
+    // }
+
+    final url = Uri.parse('$baseUrl/api/location/all');
+
+    final response = await http.get(
+      url,
+      headers: {
+        // 'Authorization': 'Bearer $token',
+        'Content-type': 'application/json',
+      },
+    );
+
+    print('Response: ${response.statusCode}');
+    print('Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data is List) {
+        return data.map((item) => Location.fromJson(item)).toList();
+      } else {
+        print('Unexpected response format: $data');
+        return [];
+      }
+    } else {
+      print('Failed to load locations: ${response.statusCode} - ${response.body}');
+      return [];
+    }
+  }
+
+
   // save hotel
 
 
-  Future<Map<String, dynamic>> addHotel({
-    required Map<String, dynamic> hotelData,
-    File? imageFile,
-    required String token,
-  }) async {
-    var uri = Uri.parse('$baseUrl/api/hotel/save');
+  Future<Map<String, dynamic>> saveHotel(Hotel hotel, File? imageFile) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
-    var request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $token'
-      ..fields['hotel'] = jsonEncode(hotelData);
+    try {
+      final hotelJson = jsonEncode({
+        "name": hotel.name,
+        "address": hotel.address,
+        "rating": hotel.rating,
+        "locationId": hotel.location.id, // backend expects this
+      });
 
-    if (imageFile != null) {
-      request.files.add(
-          await http.MultipartFile.fromPath('image', imageFile.path));
-    }
+      var uri = Uri.parse('$baseUrl/hotel/save');
+      var request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = 'Bearer $token';
+      request.fields['hotel'] = hotelJson;
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+      if (imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'image',
+          imageFile.path,
+        ));
+      }
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to add hotel: ${response.body}');
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        var respStr = await response.stream.bytesToString();
+        return jsonDecode(respStr);
+      } else {
+        throw Exception('Failed to save hotel. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error saving hotel: $e');
     }
   }
 }

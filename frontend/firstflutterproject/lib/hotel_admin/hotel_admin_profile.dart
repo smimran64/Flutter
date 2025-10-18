@@ -1,7 +1,11 @@
 
 
+import 'package:firstflutterproject/hotel/add_hotel_page.dart';
 import 'package:firstflutterproject/hotel_admin/hotel_managed_by_hotel_admin.dart';
+import 'package:firstflutterproject/hotel_information/hotel_informationfor_hotel_admin.dart';
+import 'package:firstflutterproject/hotel_information/hotel_informationfor_viewfor_hoteladmin.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
+import 'package:firstflutterproject/rooms/room_for_hotel_admin.dart';
 import 'package:firstflutterproject/service/authservice.dart';
 import 'package:flutter/material.dart';
 
@@ -82,12 +86,56 @@ class HotelAdminProfile extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.work),
+              leading: const Icon(Icons.hotel),
               title: const Text('Hotel Manage History'),
               onTap: (){
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => MyHotelsPage())
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.add_home),
+              title: const Text('Add Hotel'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddHotelPage())
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.room_preferences_rounded),
+              title: const Text('View Room'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HotelForHotelAdminPage())
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('Save Hotel Information'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HotelInformationAddPage())
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.view_in_ar),
+              title: const Text('View Hotel Information'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HotelInformationViewPage())
                 );
               },
             ),

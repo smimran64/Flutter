@@ -131,8 +131,7 @@ public class RoomRestController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateRoom(
             @PathVariable long id,
-            @RequestPart("room") RoomDTO roomDTO,
-            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestBody RoomDTO roomDTO,
             Authentication authentication
     ) {
         try {
@@ -140,15 +139,12 @@ public class RoomRestController {
             HotelAdmin admin = hotelAdminRepository.findByUserEmail(username)
                     .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-            Room updatedRoom = roomService.updateRoom(id, roomDTO, image, admin);
+            Room updatedRoom = roomService.updateRoomWithoutImage(id, roomDTO, admin);
 
             return ResponseEntity.ok().body("Room updated successfully");
 
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Image upload failed: " + e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (Exception e) {
@@ -156,6 +152,8 @@ public class RoomRestController {
                     .body("Room update failed: " + e.getMessage());
         }
     }
+
+
 
 
     @GetMapping("/r/searchRoom")

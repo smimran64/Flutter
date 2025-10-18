@@ -192,7 +192,7 @@ public class Roomservice {
 
     // Roomservice.java - updateRoom method
 
-    public Room updateRoom(long id, RoomDTO dto, MultipartFile imageFile, HotelAdmin hotelAdmin) throws IOException {
+    public Room updateRoomWithoutImage(long id, RoomDTO dto, HotelAdmin hotelAdmin) {
         Room existingRoom = roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Room not found with id: " + id));
 
@@ -220,14 +220,11 @@ public class Roomservice {
 
         existingRoom.setHotel(hotel);
 
-        // Update image if provided
-        if (imageFile != null && !imageFile.isEmpty()) {
-            String imageFileName = saveImage(imageFile, existingRoom);
-            existingRoom.setImage(imageFileName);
-        }
+        // No image update
 
         return roomRepository.save(existingRoom);
     }
+
 
 
     private String saveImage(MultipartFile file, Room room) throws IOException {
