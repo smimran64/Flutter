@@ -2,6 +2,8 @@
 
 import 'package:firstflutterproject/hotel/add_hotel_page.dart';
 import 'package:firstflutterproject/hotel_admin/hotel_managed_by_hotel_admin.dart';
+import 'package:firstflutterproject/hotel_amenities/add_hotel_amenities.dart';
+import 'package:firstflutterproject/hotel_amenities/view_hotelamenititesfor_hotel_admin.dart';
 import 'package:firstflutterproject/hotel_information/hotel_informationfor_hotel_admin.dart';
 import 'package:firstflutterproject/hotel_information/hotel_informationfor_viewfor_hoteladmin.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
@@ -136,6 +138,28 @@ class HotelAdminProfile extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => HotelInformationViewPage())
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.ac_unit_sharp),
+              title: const Text('Add Hotel Amenities'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddHotelAmenitiesPage())
+                );
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.accessible),
+              title: const Text('View Hotel Amenities'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ViewAllAmenitiesByHotelPage())
                 );
               },
             ),
