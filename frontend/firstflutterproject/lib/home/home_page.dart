@@ -287,12 +287,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     Positioned(
-                      bottom: -20, // Move the card slightly down to float over the content
+                      bottom: 20, // Move the card slightly down to float over the content
                       left: 16,
                       right: 16,
                       child: Card(
                         elevation: 12, // Increased elevation for a floating look
-                        color: Colors.white,
+                        color: Colors.black12,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // More rounded corners
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
