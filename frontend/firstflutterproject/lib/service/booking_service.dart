@@ -96,6 +96,25 @@ class BookingService {
       throw Exception('Failed to load bookings: ${response.statusCode}');
     }
   }
+
+
+  Future<List<Booking>> getBookingsByHotelId(int hotelId) async {
+    String? token = await AuthService().getToken(); // যদি JWT token লাগে
+    final response = await http.get(
+      Uri.parse("$baseUrl/hotel/$hotelId"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((e) => Booking.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load bookings');
+    }
+  }
   }
 
 

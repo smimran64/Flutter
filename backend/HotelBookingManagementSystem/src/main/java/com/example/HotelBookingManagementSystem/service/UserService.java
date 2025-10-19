@@ -326,7 +326,7 @@ public class UserService implements UserDetailsService {
 
             // Reset link & email
 
-            String resetLink = "http://localhost:4200/reset-password?token=" + token;
+            String resetLink = "http://localhost:5001/reset-password?token=" + token;
             String mailBody = "<!DOCTYPE html>"
                     + "<html><body>"
                     + "<p>Dear " + user.getName() + ",</p>"

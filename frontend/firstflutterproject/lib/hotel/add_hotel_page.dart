@@ -1,6 +1,8 @@
-import 'dart:io';
+import 'dart:io' show File;
+import 'dart:typed_data';
 import 'package:firstflutterproject/service/location_service.dart';
 import 'package:firstflutterproject/service/hotel_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firstflutterproject/entity/hotel_model.dart' as hotel;
@@ -23,6 +25,7 @@ class _AddHotelPageState extends State<AddHotelPage>
   final TextEditingController _ratingController = TextEditingController();
 
   File? _selectedImage;
+  Uint8List? _webImage; // for web
   bool _isLoading = false;
   List<loc.Location> locations = [];
   loc.Location? selectedLocation;
@@ -67,13 +70,33 @@ class _AddHotelPageState extends State<AddHotelPage>
     }
   }
 
+  // ✅ Cross-platform image picker (Web + Mobile)
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      setState(() => _selectedImage = File(pickedFile.path));
+      try {
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          setState(() {
+            _webImage = Uint8List.fromList(bytes);
+            _selectedImage = null;
+          });
+        } else {
+          setState(() {
+            _selectedImage = File(pickedFile.path);
+            _webImage = null;
+          });
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("⚠️ Failed to load image: $e")),
+        );
+      }
     }
   }
+
 
   Future<void> _saveHotel() async {
     if (!_formKey.currentState!.validate()) return;
@@ -100,7 +123,9 @@ class _AddHotelPageState extends State<AddHotelPage>
         ),
       );
 
-      var result = await _hotelService.saveHotel(newHotel, _selectedImage);
+      // Backend call (no change)
+      var result = await _hotelService.saveHotel(newHotel,
+          kIsWeb ? null : _selectedImage); // keep original behavior
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message'] ?? 'Hotel saved successfully')),
@@ -183,6 +208,7 @@ class _AddHotelPageState extends State<AddHotelPage>
                             ),
                             const SizedBox(height: 16),
 
+                            // ✅ Fixed image preview widget
                             GestureDetector(
                               onTap: _pickImage,
                               child: AnimatedContainer(
@@ -202,26 +228,40 @@ class _AddHotelPageState extends State<AddHotelPage>
                                   ],
                                   color: Colors.white,
                                 ),
-                                child: _selectedImage == null
+                                child: _selectedImage == null && _webImage == null
                                     ? const Center(
                                   child: Text(
                                     '📸 Tap to select image',
                                     style: TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.bold),
+                                        color: Colors.black54, fontWeight: FontWeight.bold),
                                   ),
                                 )
                                     : ClipRRect(
                                   borderRadius: BorderRadius.circular(18),
-                                  child: Image.file(
-                                    _selectedImage!,
-                                    height: 150,
-                                    width: double.infinity,
+                                  child: kIsWeb
+                                      ? Image.memory(
+                                    _webImage!,
                                     fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Center(
+                                        child: Text(
+                                          '❌ Image not supported',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                      : Image.file(
+                                    _selectedImage!,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
                                   ),
                                 ),
+
                               ),
                             ),
+
                             const SizedBox(height: 24),
                             _isLoading
                                 ? const CircularProgressIndicator()

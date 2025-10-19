@@ -229,5 +229,52 @@ class AuthService {
     }
   }
 
+  // forgot password
+
+  Future<String> forgotPassword(String email) async {
+    final url = Uri.parse('$baseUrl/api/user/forgot-password');
+
+    try {
+      final response = await http.post(url, body: {'email': email});
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['message'] ?? 'Success';
+      } else {
+        return 'Error: ${response.statusCode}';
+      }
+    } catch (e) {
+      return 'Network error: $e';
+    }
+  }
+
+
+  //NEW: Reset Password Method
+
+
+  Future<String> resetPassword(String token, String newPassword) async {
+    final url = Uri.parse('$baseUrl/api/user/reset-password');
+
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'token': token,
+          'newPassword': newPassword,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['message'] ?? 'Password reset successfully';
+      } else {
+        return 'Error: ${response.statusCode}';
+      }
+    } catch (e) {
+      return 'Failed to connect to server: $e';
+    }
+  }
+
+
 
 }
