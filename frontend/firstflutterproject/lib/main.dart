@@ -1,4 +1,6 @@
 import 'package:firstflutterproject/admin/admin_registration_page.dart';
+import 'package:firstflutterproject/customer/customer_profile.dart';
+import 'package:firstflutterproject/entity/customer_model.dart';
 import 'package:firstflutterproject/home/home_page.dart';
 import 'package:firstflutterproject/page/loginpage.dart';
 import 'package:firstflutterproject/page/registration.dart';
@@ -25,6 +27,15 @@ class MyApp extends StatelessWidget {
       home: token != null
           ? ResetPasswordScreen(token: token)
           : HomePage(),
+      routes: {
+        '/customerProfile': (context) {
+          final customer =
+          ModalRoute.of(context)!.settings.arguments as CustomerModel;
+          return CustomerProfile(profile: customer);
+        },
+      },
+
+
     );
   }
 }

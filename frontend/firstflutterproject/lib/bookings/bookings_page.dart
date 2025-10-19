@@ -1,5 +1,7 @@
 
 
+import 'package:firstflutterproject/entity/customer_model.dart';
+import 'package:firstflutterproject/service/authservice.dart';
 import 'package:firstflutterproject/service/booking_service.dart';
 
 import 'package:flutter/material.dart';
@@ -305,6 +307,16 @@ class _BookingsPageState extends State<BookingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("✅ Booking created & invoice generated!")),
       );
+
+      // API response থেকে customerJson নেওয়া
+      final customerJson = response['customerdto'];
+
+      Navigator.pushNamed(
+        context,
+        '/customerProfile',
+        arguments: CustomerModel.fromJson(customerJson),
+      );
+
     } catch (e) {
       ScaffoldMessenger.of(
         context,

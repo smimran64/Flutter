@@ -196,7 +196,7 @@ class AuthService {
     print('Token sent to /me: $token');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/customer/me'),
+      Uri.parse('$baseUrl/api/me'),
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer $token',
         HttpHeaders.contentTypeHeader: 'application/json',

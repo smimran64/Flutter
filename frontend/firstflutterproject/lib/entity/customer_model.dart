@@ -1,14 +1,12 @@
-
-
 class CustomerModel {
-  final int? id;
-  final String? name;
-  final String? email;
-  final String? phone;
-  final String? address;
-  final String? gender;
-  final DateTime? dateOfBirth;
-  final String? image;
+  int? id;
+  String? name;
+  String? email;
+  String? phone;
+  String? address;
+  String? gender;
+  DateTime? dateOfBirth;
+  String? image;
 
   CustomerModel({
     this.id,
@@ -21,7 +19,6 @@ class CustomerModel {
     this.image,
   });
 
-  // JSON থেকে object তৈরি
   factory CustomerModel.fromJson(Map<String, dynamic> json) {
     return CustomerModel(
       id: json['id'],
@@ -37,7 +34,6 @@ class CustomerModel {
     );
   }
 
-  // Object থেকে JSON তৈরি
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -50,6 +46,4 @@ class CustomerModel {
       'image': image,
     };
   }
-
-  
 }
