@@ -99,7 +99,10 @@ public class SecurityConfig {
                                 "/api/room//update/**"
                         ).hasRole("HOTEL_ADMIN")
 
-                        .requestMatchers("/api/location/save","/api/admin/profile"
+                        .requestMatchers(
+                                "/api/location/save",
+                                "/api/admin/profile",
+                                "/api/booking/all"
                                 ).hasRole("ADMIN")
 
                         .requestMatchers("/api/customer/profile",

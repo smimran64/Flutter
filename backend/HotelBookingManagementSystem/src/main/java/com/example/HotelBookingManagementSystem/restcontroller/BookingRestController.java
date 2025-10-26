@@ -35,6 +35,15 @@ public class BookingRestController {
         return ResponseEntity.ok(savedBooking);
     }
 
+
+
+    // Get all bookings
+
+    @GetMapping("/all")
+    public List<BookingDTO> getAllBookings() {
+        return bookingService.getAllBookings();
+    }
+
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<List<BookingDTO>> getBookingsByCustomerId(@PathVariable Long customerId) {
         List<BookingDTO> bookings = bookingService.getBookingsByCustomerId(customerId);
